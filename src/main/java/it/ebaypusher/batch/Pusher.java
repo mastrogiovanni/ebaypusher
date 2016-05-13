@@ -73,6 +73,7 @@ public class Pusher implements Runnable {
 					
 					elaborazione.setFilename(file.getName());
 					elaborazione.setPathFileInput(file.getAbsolutePath());
+					elaborazione.setNumTentativi(0);
 					
 					// Crea un batch di inserimento ebay
 					connector.create(elaborazione);

@@ -1,64 +1,77 @@
 package it.ebaypusher.dao;
 
 import java.io.Serializable;
-import javax.persistence.*;
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  * The persistent class for the SNZH_ELABORAZIONIEBAY database table.
  * 
  */
 @Entity
-@Table(name="SNZH_ELABORAZIONIEBAY")
-@NamedQuery(name="SnzhElaborazioniebay.findAll", query="SELECT s FROM SnzhElaborazioniebay s")
+@Table(name = "SNZH_ELABORAZIONIEBAY")
+@NamedQuery(name = "SnzhElaborazioniebay.findAll", query = "SELECT s FROM SnzhElaborazioniebay s")
 public class SnzhElaborazioniebay implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="ID_ELABORAZIONE")
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "ID_ELABORAZIONE")
 	private String idElaborazione;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="DATA_ELABORAZIONE")
+	@Column(name = "DATA_ELABORAZIONE")
 	private Date dataElaborazione;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="DATA_INSERIMENTO")
+	@Column(name = "DATA_INSERIMENTO")
 	private Date dataInserimento;
 
 	@Lob
-	@Column(name="ERRORE_JOB")
+	@Column(name = "ERRORE_JOB")
 	private String erroreJob;
 
-	@Column(name="FASE_JOB")
+	@Column(name = "FASE_JOB")
 	private String faseJob;
 
-	@Column(name="FILE_REFERENCE_ID")
+	@Column(name = "FILE_REFERENCE_ID")
 	private String fileReferenceId;
 
-	@Column(name="FILENAME")
+	@Column(name = "FILENAME")
 	private String filename;
 
-	@Column(name="JOB_ID")
+	@Column(name = "JOB_ID")
 	private String jobId;
 
-	@Column(name="JOB_PERC_COMPL")
+	@Column(name = "JOB_PERC_COMPL")
 	private int jobPercCompl;
 
-	@Column(name="JOB_STATUS")
+	@Column(name = "JOB_STATUS")
 	private String jobStatus;
 
-	@Column(name="JOB_TYPE")
+	@Column(name = "JOB_TYPE")
 	private String jobType;
 
+	@Column(name = "NUM_TENTATIVI")
+	private int numTentativi;
+
 	@Lob
-	@Column(name="PATH_FILE_ESITO")
+	@Column(name = "PATH_FILE_ESITO")
 	private String pathFileEsito;
 
 	@Lob
-	@Column(name="PATH_FILE_INPUT")
+	@Column(name = "PATH_FILE_INPUT")
 	private String pathFileInput;
 
 	public SnzhElaborazioniebay() {
@@ -150,6 +163,14 @@ public class SnzhElaborazioniebay implements Serializable {
 
 	public void setJobType(String jobType) {
 		this.jobType = jobType;
+	}
+
+	public int getNumTentativi() {
+		return this.numTentativi;
+	}
+
+	public void setNumTentativi(int numTentativi) {
+		this.numTentativi = numTentativi;
 	}
 
 	public String getPathFileEsito() {
