@@ -80,11 +80,8 @@ public class Pusher implements Runnable {
 					elaborazione.setJobStatus(JobStatus.CREATED.toString());
 					elaborazione.setFaseJob(Stato.IN_CORSO_DI_INVIO.toString());
 					elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
-
-					dao.begin();
 					dao.insert(elaborazione);
-					dao.commit();
-
+					
 				}
 				catch (Throwable t) {
 					

@@ -7,11 +7,13 @@
 		<!-- shouldn't be valid for java SE per specification, but it works for EclipseLink ... -->
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>
 		<properties>
-		
+
+<!--
 			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/ebaypusher" />
-			<property name="javax.persistence.jdbc.user" value="root" />
-			<property name="javax.persistence.jdbc.password" value="pippo80" />
+			<property name="javax.persistence.jdbc.user" value="xxx" />
+			<property name="javax.persistence.jdbc.password" value="xxx" />
+-->
 
 			<!-- EclipseLink should create the database schema automatically -->
 			<property name="eclipselink.ddl-generation" value="create-tables" />

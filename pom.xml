@@ -17,6 +17,14 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>com.mashape.unirest</groupId>
+			<artifactId>unirest-java</artifactId>
+			<version>1.4.9</version>
+		</dependency>
+
+		<!-- Librerie Ebay -->
+
+		<dependency>
 			<groupId>ebay.fileTransferService</groupId>
 			<artifactId>BulkDataExchangeService</artifactId>
 			<version>1.0</version>
@@ -30,30 +38,7 @@
 			<version>2.1.4</version>
 		</dependency>
 
-		<!-- /home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/FastInfoset.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/FileTransferService_BulkDataExchangeService.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/gmbal-api-only.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/ha-api.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/javax.annotation-api.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/javax.xml.soap-api.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/jaxb-api.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/jaxb-core.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/jaxb-impl.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/jaxb-jxc.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/jaxb-xjc.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/jaxws-api.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/jaxws-rt.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/jaxws-tools.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/jsr181-api.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/management-api.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/mimepull.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/policy.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/resolver.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/saaj-impl.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/stax2-api.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/stax-ex.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/streambuffer.jar 
-			/home/michele/Documents/Progetti/pcc/workspaceMEV2016/ebaypusher/lib/woodstox-core-asl.jar -->
+		<!-- Supporto JPA -->
 
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
@@ -67,11 +52,15 @@
 			<version>2.0.3</version>
 		</dependency>
 
+		<!-- Driver MySQL -->
+
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.6</version>
 		</dependency>
+
+		<!-- Utility e Logging -->
 
 		<dependency>
 			<groupId>log4j</groupId>
@@ -96,6 +85,13 @@
 
 	<build>
 
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -108,16 +104,72 @@
 			</plugin>
 
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.3</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
 				<configuration>
-					<descriptors>
-						<descriptor>assembly.xml</descriptor>
-					</descriptors>
+					<archive>
+						<manifestEntries>
+							<Class-Path>lib/BulkDataExchangeService-1.0.jar</Class-Path>
+						</manifestEntries>
+						<index>false</index>
+						<manifest>
+							<mainClass>it.ebaypusher.App</mainClass>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<useUniqueVersions>false</useUniqueVersions>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
-			
+
 			<!--
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/classes</outputDirectory>
+							<includeEmptyDirs>true</includeEmptyDirs>
+							<resources>
+								<resource>
+									<directory>confs/${property.directory}</directory>
+									<targetPath>${basedir}/target/classes</targetPath>
+									<filtering>false</filtering>
+									<includes>
+										<include>log4j.xml</include>
+										<include>config.properties</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			-->
+
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.3</version>
@@ -136,7 +188,6 @@
 					</descriptors>
 				</configuration>
 			</plugin>
-			-->
 
 		</plugins>
 

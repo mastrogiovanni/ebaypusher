@@ -55,9 +55,7 @@ public class Puller implements Runnable {
 
 							elaborazione.setPathFileInput(Utility.getSentFile(elaborazione).getAbsolutePath());
 							elaborazione.setFaseJob(Stato.INVIATO_EBAY.toString());
-							dao.begin();
 							dao.update(elaborazione);
-							dao.commit();
 
 						}
 						
@@ -66,9 +64,7 @@ public class Puller implements Runnable {
 							
 							connector.start(elaborazione);
 							elaborazione.setJobStatus(JobStatus.SCHEDULED.toString());
-							dao.begin();
 							dao.update(elaborazione);
-							dao.commit();
 							
 						}
 						
@@ -90,10 +86,7 @@ public class Puller implements Runnable {
 							
 						}
 
-						dao.begin();
 						dao.update(elaborazione);
-						dao.commit();
-
 						break;
 
 					case ABORTED:

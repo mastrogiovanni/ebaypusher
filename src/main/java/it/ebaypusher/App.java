@@ -42,21 +42,23 @@ public class App {
     	// startCreated();
 //    	showStatus();
 //    	System.exit(0);
-    	
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit");
+    	    	
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit", Configurazione.getConfiguration());
 		EntityManager manager = factory.createEntityManager();
 		Dao dao = new Dao(manager);
-
+		
+		logger.info("Database connected");
+		
 		EbayController connector = new EbayControllerImpl();
+
+		logger.info("Ebay connection setup");
 
 		Pusher pusher = new Pusher(dao, connector);
 		Thread threadPusher = new Thread(pusher);
 		threadPusher.start();
 		
 		Puller puller = new Puller(dao, connector);
-		
 		Thread threadPuller = new Thread(puller);
-		
 		threadPuller.start();
 	
 	}
