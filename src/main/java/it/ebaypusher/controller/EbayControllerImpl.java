@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +32,7 @@ import ebay.dts.client.BulkDataExchangeActions;
 import ebay.dts.client.CreateLMSParser;
 import ebay.dts.client.FileTransferActions;
 import it.ebaypusher.constants.Stato;
-import it.ebaypusher.dao.ElaborazioniEbay;
+import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
 import it.ebaypusher.utility.Utility;
 
@@ -42,7 +41,7 @@ public class EbayControllerImpl implements EbayController {
 	private Log logger = LogFactory.getLog(EbayController.class);
 
 	@Override
-	public void create(ElaborazioniEbay elaborazione) throws EbayConnectorException {
+	public void create(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
 
 		File file = Utility.getInputFile(elaborazione);
 
@@ -59,13 +58,16 @@ public class EbayControllerImpl implements EbayController {
 		// Verifica la risposta del WS
 		check(createUploadJobresponse);
 
-		elaborazione.setIdFile(createUploadJobresponse.getFileReferenceId());
-		elaborazione.setIdJobEbay(createUploadJobresponse.getJobId());
+		// Assign data to elaborazione
+		elaborazione.setJobType(jobType);
+		elaborazione.setJobPercCompl(0);
+		elaborazione.setFileReferenceId(createUploadJobresponse.getFileReferenceId());
+		elaborazione.setJobId(createUploadJobresponse.getJobId());
 			
 	}
 	
 	@Override
-	public void upload(ElaborazioniEbay elaborazione) throws EbayConnectorException {
+	public void upload(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
 		
 		File file = Utility.getInputFile(elaborazione);
 
@@ -75,8 +77,8 @@ public class EbayControllerImpl implements EbayController {
 
 		UploadFileResponse uploadFileResp = ftActions.uploadFile2(
 				file.getAbsolutePath(), 
-				elaborazione.getIdJobEbay(), 
-				elaborazione.getIdFile());
+				elaborazione.getJobId(), 
+				elaborazione.getFileReferenceId());
 		
 		if (uploadFileResp == null) {
 			throw new EbayConnectorException("Impossibile effettuare l'upload del job: risposta vuota");
@@ -86,32 +88,29 @@ public class EbayControllerImpl implements EbayController {
 
 		logger.info("File trasferito con successo: " + file);
 		
-		elaborazione.setStato(Stato.INVIATO_EBAY);
-		elaborazione.setDataOraInvio(new Timestamp(System.currentTimeMillis()));
-
 	}
 
 	@Override
-	public void start(ElaborazioniEbay elaborazione) throws EbayConnectorException {
+	public void start(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
 		
-		logger.info("Richiedo avvio batch elaborazione ebay: " + elaborazione.getIdJobEbay());
+		logger.info("Richiedo avvio batch elaborazione ebay: " + elaborazione.getJobId());
 
 		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
 
-		StartUploadJobResponse startUploadJobResp = bdeActions.startUploadJob(elaborazione.getIdJobEbay());
+		StartUploadJobResponse startUploadJobResp = bdeActions.startUploadJob(elaborazione.getJobId());
 		
 		check(startUploadJobResp);
 
-		logger.info("Batch elaborazione ebay avviato con successo: " + elaborazione.getIdJobEbay());
+		logger.info("Batch elaborazione ebay avviato con successo: " + elaborazione.getJobId());
 
 	}
 	
 	@Override
-	public void updateStatus(ElaborazioniEbay elaborazione) throws EbayConnectorException {
+	public void updateProgressAndStatus(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
 		
 		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
 		
-		GetJobStatusResponse getJobStatusResp = bdeActions.getJobStatus(elaborazione.getIdJobEbay());
+		GetJobStatusResponse getJobStatusResp = bdeActions.getJobStatus(elaborazione.getJobId());
 		
 		check(getJobStatusResp);
 		
@@ -119,18 +118,24 @@ public class EbayControllerImpl implements EbayController {
 		
 		// Aggiorna l'avanzamento
 		if ( job.getPercentComplete() != null ) {
-			elaborazione.setAvanzamento(new BigDecimal(job.getPercentComplete()));
+			elaborazione.setJobPercCompl((int) Math.round(job.getPercentComplete()));
+		}
+		
+		if (job.getJobStatus() != null) {
+			elaborazione.setJobStatus(job.getJobStatus().toString());
 		}
 
 		if (job.getJobStatus().equals(JobStatus.COMPLETED) && job.getPercentComplete() == 100.0) {
 			logger.info("jobId=" + job.getJobId() + "; " + "jobFileReferenceId=" + job.getFileReferenceId() + " : " + job.getJobType() + " : " + job.getJobStatus());
-			elaborazione.setStato(Stato.TERMINATO_CON_SUCCESSO);
+			elaborazione.setFaseJob(Stato.TERMINATO_CON_SUCCESSO.toString());
+			elaborazione.setDataElaborazione(new Timestamp(System.currentTimeMillis()));
 			return;
 		}
 		
 		if (job.getJobStatus().equals(JobStatus.FAILED) || job.getJobStatus().equals(JobStatus.ABORTED)) {
 			logger.error("JobId=" + job.getJobId() + ": " + "Job Type " + job.getJobType() + " : JobStatus= " + job.getJobStatus());
-			elaborazione.setStato(Stato.TERMINATO_CON_ERRORE);
+			elaborazione.setFaseJob(Stato.TERMINATO_CON_ERRORE.toString());
+			elaborazione.setDataElaborazione(new Timestamp(System.currentTimeMillis()));
 			return;
 		}
 		
@@ -139,28 +144,30 @@ public class EbayControllerImpl implements EbayController {
 	}
 	
 	@Override
-	public void saveResponseFile(ElaborazioniEbay elaborazione) throws EbayConnectorException {
+	public void saveResponseFile(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
 		
 		File fileToSave = null;
 		
-		if ( elaborazione.getStato() == Stato.TERMINATO_CON_SUCCESSO ) {
+		if ( Stato.TERMINATO_CON_SUCCESSO.toString().equals(elaborazione.getFaseJob()) ) {
 			fileToSave = Utility.getReportFile(elaborazione);
 		}
 		else {
 			fileToSave = Utility.getErrorFile(elaborazione);
 		}
-		
-		// Elimina il file se esiste
-		if ( fileToSave.exists() ) {
-			logger.trace("File già salvato: " + fileToSave);
-			return;
-		}
+
+		elaborazione.setPathFileEsito(fileToSave.getAbsolutePath());
+
+//		// Elimina il file se esiste
+//		if ( fileToSave.exists() ) {
+//			logger.trace("File già salvato: " + fileToSave);
+//			return;
+//		}
 				
 		FileTransferActions ftActions = new FileTransferActions(Configurazione.getConfiguration());
 		DownloadFileResponse downloadFileResp = ftActions.downloadFile(
-				elaborazione.getFileName(), 
-				elaborazione.getIdJobEbay(), 
-				elaborazione.getIdFile());
+				elaborazione.getFilename(), 
+				elaborazione.getJobId(), 
+				elaborazione.getFileReferenceId());
 		
 		if (downloadFileResp == null) {
 			throw new EbayConnectorException("Errore nel download della risposta");

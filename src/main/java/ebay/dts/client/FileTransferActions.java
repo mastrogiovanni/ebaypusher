@@ -1,5 +1,5 @@
 /**
- * � 2010-2013 eBay Inc., All Rights Reserved
+ * © 2010-2013 eBay Inc., All Rights Reserved
  * Licensed under CDDL 1.0 -  http://opensource.org/licenses/cddl1.php
  */
 
@@ -92,6 +92,7 @@ public class FileTransferActions {
 		String callName = "uploadFile";
 		boolean uploadFileOK = false;
 		UploadFileResponse response = null;
+		File fileToUpload = null;
 		try {
 
 			String compressedFileName = compressFileToGzip(xmlFile);
@@ -102,7 +103,7 @@ public class FileTransferActions {
 			FileTransferServicePort port = call.setFTSMessageContext(callName);
 			UploadFileRequest request = new UploadFileRequest();
 			FileAttachment attachment = new FileAttachment();
-			File fileToUpload = new File(compressedFileName);
+			fileToUpload = new File(compressedFileName);
 			DataHandler dh = new DataHandler(new FileDataSource(fileToUpload));
 			attachment.setData(dh);
 			attachment.setSize(fileToUpload.length());
@@ -126,6 +127,12 @@ public class FileTransferActions {
 			logger.severe(e.getMessage());
 			return null;
 		}
+		finally {
+			if ( fileToUpload != null && fileToUpload.exists()) {
+				fileToUpload.delete();
+			}
+		}
+		
 		return response;
 	}
 

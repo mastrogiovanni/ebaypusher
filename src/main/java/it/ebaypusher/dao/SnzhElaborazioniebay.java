@@ -7,176 +7,165 @@ import java.util.Date;
 
 /**
  * The persistent class for the SNZH_ELABORAZIONIEBAY database table.
+ * 
  */
 @Entity
 @Table(name="SNZH_ELABORAZIONIEBAY")
 @NamedQuery(name="SnzhElaborazioniebay.findAll", query="SELECT s FROM SnzhElaborazioniebay s")
 public class SnzhElaborazioniebay implements Serializable {
-
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="SNZH_IDELABORAZIONE", unique=true, nullable=false)
-	private String snzhIdelaborazione;
+	@Column(name="ID_ELABORAZIONE")
+	private String idElaborazione;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="SNZH_DATAELABORAZIONE")
-	private Date snzhDataelaborazione;
+	@Column(name="DATA_ELABORAZIONE")
+	private Date dataElaborazione;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="SNZH_DATAINSERIMENTO", nullable=false)
-	private Date snzhDatainserimento;
+	@Column(name="DATA_INSERIMENTO")
+	private Date dataInserimento;
 
 	@Lob
-	@Column(name="SNZH_ERROREJOB")
-	private String snzhErrorejob;
+	@Column(name="ERRORE_JOB")
+	private String erroreJob;
 
-	@Column(name="SNZH_FASEJOB", nullable=false, length=30)
-	private String snzhFasejob;
+	@Column(name="FASE_JOB")
+	private String faseJob;
 
-	@Column(name="SNZH_FILENAME", nullable=false, length=80)
-	private String snzhFilename;
+	@Column(name="FILE_REFERENCE_ID")
+	private String fileReferenceId;
 
-	@Column(name="SNZH_FILEREFERENCEID", nullable=false, length=30)
-	private String snzhFilereferenceid;
+	@Column(name="FILENAME")
+	private String filename;
 
-	@Column(name="SNZH_JOBID", nullable=false, length=30)
-	private String snzhJobid;
+	@Column(name="JOB_ID")
+	private String jobId;
 
-	@Column(name="SNZH_JOBPERCCOMPL", nullable=false)
-	private int snzhJobperccompl;
+	@Column(name="JOB_PERC_COMPL")
+	private int jobPercCompl;
 
-	@Column(name="SNZH_JOBSTATUS", nullable=false, length=15)
-	private String snzhJobstatus;
+	@Column(name="JOB_STATUS")
+	private String jobStatus;
 
-	@Column(name="SNZH_JOBTYPE", nullable=false, length=30)
-	private String snzhJobtype;
-
-	@Lob
-	@Column(name="SNZH_PATHFILEESITO")
-	private String snzhPathfileesito;
+	@Column(name="JOB_TYPE")
+	private String jobType;
 
 	@Lob
-	@Column(name="SNZH_PATHFILEINPUT", nullable=false)
-	private String snzhPathfileinput;
+	@Column(name="PATH_FILE_ESITO")
+	private String pathFileEsito;
 
-	@Column(name="SNZH_STATOJOB", nullable=false, length=30)
-	private String snzhStatojob;
+	@Lob
+	@Column(name="PATH_FILE_INPUT")
+	private String pathFileInput;
 
 	public SnzhElaborazioniebay() {
 	}
 
-	public String getSnzhIdelaborazione() {
-		return this.snzhIdelaborazione;
+	public String getIdElaborazione() {
+		return this.idElaborazione;
 	}
 
-	public void setSnzhIdelaborazione(String snzhIdelaborazione) {
-		this.snzhIdelaborazione = snzhIdelaborazione;
+	public void setIdElaborazione(String idElaborazione) {
+		this.idElaborazione = idElaborazione;
 	}
 
-	public Date getSnzhDataelaborazione() {
-		return this.snzhDataelaborazione;
+	public Date getDataElaborazione() {
+		return this.dataElaborazione;
 	}
 
-	public void setSnzhDataelaborazione(Date snzhDataelaborazione) {
-		this.snzhDataelaborazione = snzhDataelaborazione;
+	public void setDataElaborazione(Date dataElaborazione) {
+		this.dataElaborazione = dataElaborazione;
 	}
 
-	public Date getSnzhDatainserimento() {
-		return this.snzhDatainserimento;
+	public Date getDataInserimento() {
+		return this.dataInserimento;
 	}
 
-	public void setSnzhDatainserimento(Date snzhDatainserimento) {
-		this.snzhDatainserimento = snzhDatainserimento;
+	public void setDataInserimento(Date dataInserimento) {
+		this.dataInserimento = dataInserimento;
 	}
 
-	public String getSnzhErrorejob() {
-		return this.snzhErrorejob;
+	public String getErroreJob() {
+		return this.erroreJob;
 	}
 
-	public void setSnzhErrorejob(String snzhErrorejob) {
-		this.snzhErrorejob = snzhErrorejob;
+	public void setErroreJob(String erroreJob) {
+		this.erroreJob = erroreJob;
 	}
 
-	public String getSnzhFasejob() {
-		return this.snzhFasejob;
+	public String getFaseJob() {
+		return this.faseJob;
 	}
 
-	public void setSnzhFasejob(String snzhFasejob) {
-		this.snzhFasejob = snzhFasejob;
+	public void setFaseJob(String faseJob) {
+		this.faseJob = faseJob;
 	}
 
-	public String getSnzhFilename() {
-		return this.snzhFilename;
+	public String getFileReferenceId() {
+		return this.fileReferenceId;
 	}
 
-	public void setSnzhFilename(String snzhFilename) {
-		this.snzhFilename = snzhFilename;
+	public void setFileReferenceId(String fileReferenceId) {
+		this.fileReferenceId = fileReferenceId;
 	}
 
-	public String getSnzhFilereferenceid() {
-		return this.snzhFilereferenceid;
+	public String getFilename() {
+		return this.filename;
 	}
 
-	public void setSnzhFilereferenceid(String snzhFilereferenceid) {
-		this.snzhFilereferenceid = snzhFilereferenceid;
+	public void setFilename(String filename) {
+		this.filename = filename;
 	}
 
-	public String getSnzhJobid() {
-		return this.snzhJobid;
+	public String getJobId() {
+		return this.jobId;
 	}
 
-	public void setSnzhJobid(String snzhJobid) {
-		this.snzhJobid = snzhJobid;
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
 	}
 
-	public int getSnzhJobperccompl() {
-		return this.snzhJobperccompl;
+	public int getJobPercCompl() {
+		return this.jobPercCompl;
 	}
 
-	public void setSnzhJobperccompl(int snzhJobperccompl) {
-		this.snzhJobperccompl = snzhJobperccompl;
+	public void setJobPercCompl(int jobPercCompl) {
+		this.jobPercCompl = jobPercCompl;
 	}
 
-	public String getSnzhJobstatus() {
-		return this.snzhJobstatus;
+	public String getJobStatus() {
+		return this.jobStatus;
 	}
 
-	public void setSnzhJobstatus(String snzhJobstatus) {
-		this.snzhJobstatus = snzhJobstatus;
+	public void setJobStatus(String jobStatus) {
+		this.jobStatus = jobStatus;
 	}
 
-	public String getSnzhJobtype() {
-		return this.snzhJobtype;
+	public String getJobType() {
+		return this.jobType;
 	}
 
-	public void setSnzhJobtype(String snzhJobtype) {
-		this.snzhJobtype = snzhJobtype;
+	public void setJobType(String jobType) {
+		this.jobType = jobType;
 	}
 
-	public String getSnzhPathfileesito() {
-		return this.snzhPathfileesito;
+	public String getPathFileEsito() {
+		return this.pathFileEsito;
 	}
 
-	public void setSnzhPathfileesito(String snzhPathfileesito) {
-		this.snzhPathfileesito = snzhPathfileesito;
+	public void setPathFileEsito(String pathFileEsito) {
+		this.pathFileEsito = pathFileEsito;
 	}
 
-	public String getSnzhPathfileinput() {
-		return this.snzhPathfileinput;
+	public String getPathFileInput() {
+		return this.pathFileInput;
 	}
 
-	public void setSnzhPathfileinput(String snzhPathfileinput) {
-		this.snzhPathfileinput = snzhPathfileinput;
-	}
-
-	public String getSnzhStatojob() {
-		return this.snzhStatojob;
-	}
-
-	public void setSnzhStatojob(String snzhStatojob) {
-		this.snzhStatojob = snzhStatojob;
+	public void setPathFileInput(String pathFileInput) {
+		this.pathFileInput = pathFileInput;
 	}
 
 }

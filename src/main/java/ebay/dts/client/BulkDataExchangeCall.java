@@ -1,21 +1,25 @@
 /**
- * © 2010-2013 eBay Inc., All Rights Reserved
+ * Â© 2010-2013 eBay Inc., All Rights Reserved
  * Licensed under CDDL 1.0 -  http://opensource.org/licenses/cddl1.php
  */
 
 package ebay.dts.client;
 
-import com.ebay.marketplace.services.BulkDataExchangeService;
-import com.ebay.marketplace.services.BulkDataExchangeServicePort;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.ebay.marketplace.services.BulkDataExchangeService;
+import com.ebay.marketplace.services.BulkDataExchangeServicePort;
 
 /**
  *
@@ -23,7 +27,8 @@ import javax.xml.ws.handler.MessageContext;
  */
 public class BulkDataExchangeCall {
 
-    private static Logger logger = Logger.getLogger("BulkDataExchangeCall.logger");
+    private static Log logger = LogFactory.getLog(BulkDataExchangeCall.class);
+
     private BindingProvider bp;
 
     public String getCallName() {
@@ -70,7 +75,7 @@ public class BulkDataExchangeCall {
     public BulkDataExchangeServicePort setRequestContext(String callName) {
 
         if (this.serverURL == null && this.serverURL.length() == 0) {
-            logger.severe(" BulkDataExchangeService endpoint URL is not set ");
+            logger.error("BulkDataExchangeService endpoint URL is not set");
             return null;
         }
 
@@ -146,7 +151,8 @@ public class BulkDataExchangeCall {
     }
 
     private Map<String, Object> retrieveHttpHeaders(BindingProvider bp, String headerType) {
-        System.out.println("headerType " + headerType);
+    	
+        logger.trace("headerType " + headerType);
 
         Map<String, Object> headerM = null;
         Map<String, Object> contextMap = null;

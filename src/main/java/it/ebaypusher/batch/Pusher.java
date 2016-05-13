@@ -2,13 +2,18 @@ package it.ebaypusher.batch;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.ebay.marketplace.services.JobStatus;
+
+import it.ebaypusher.constants.Stato;
 import it.ebaypusher.controller.EbayController;
 import it.ebaypusher.dao.Dao;
-import it.ebaypusher.dao.ElaborazioniEbay;
+import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
 import it.ebaypusher.utility.Utility;
 
@@ -62,35 +67,24 @@ public class Pusher implements Runnable {
 			})) {
 				
 				try {
-				
-					// Aggiunge il file da elaborare al database (evita i duplicati)
-					ElaborazioniEbay elaborazione = dao.create(file.getName());
-					if ( elaborazione == null ) {
-						logger.info("File già presente: " + file.getName());
-						continue;
-					}
-
+					
+					SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
+					elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
+					
+					elaborazione.setFilename(file.getName());
+					elaborazione.setPathFileInput(file.getAbsolutePath());
+					
 					// Crea un batch di inserimento ebay
 					connector.create(elaborazione);
 					
-					// Salva Id Ebay per l'elaborazione
-					dao.update(elaborazione);
+					elaborazione.setJobStatus(JobStatus.CREATED.toString());
+					elaborazione.setFaseJob(Stato.IN_CORSO_DI_INVIO.toString());
+					elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
 
-					// Invia il file ad ebay per il processamento
-					connector.upload(elaborazione);
+					dao.begin();
+					dao.insert(elaborazione);
+					dao.commit();
 
-					// Avvia l'elaborazione del batch
-					connector.start(elaborazione);
-					
-					// Salva Stato INVIATO_EBAY
-					dao.update(elaborazione);
-
-					// Sposta il file da OUTPUT a SENT
-					File sentFile = Utility.getSentFile(elaborazione);
-					if (!file.renameTo(sentFile)) {
-						logger.error("Non posso spostare il file nella cartella SENT");
-					}
-					
 				}
 				catch (Throwable t) {
 					

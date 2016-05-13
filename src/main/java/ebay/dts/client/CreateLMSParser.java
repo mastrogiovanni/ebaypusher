@@ -1,5 +1,5 @@
 /**
- * © 2009-2013 eBay Inc., All Rights Reserved
+ * Â© 2009-2013 eBay Inc., All Rights Reserved
  * Licensed under CDDL 1.0 -  http://opensource.org/licenses/cddl1.php
  */
 

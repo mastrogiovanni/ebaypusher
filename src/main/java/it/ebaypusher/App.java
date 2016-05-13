@@ -1,5 +1,9 @@
 package it.ebaypusher;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -13,7 +17,7 @@ import it.ebaypusher.controller.EbayConnectorException;
 import it.ebaypusher.controller.EbayController;
 import it.ebaypusher.controller.EbayControllerImpl;
 import it.ebaypusher.dao.Dao;
-import it.ebaypusher.dao.ElaborazioniEbay;
+import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
 
 /**
@@ -39,14 +43,14 @@ public class App {
 //    	showStatus();
 //    	System.exit(0);
     	
-		Dao dao = new Dao();
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit");
+		EntityManager manager = factory.createEntityManager();
+		Dao dao = new Dao(manager);
 
 		EbayController connector = new EbayControllerImpl();
 
 		Pusher pusher = new Pusher(dao, connector);
-		
 		Thread threadPusher = new Thread(pusher);
-		
 		threadPusher.start();
 		
 		Puller puller = new Puller(dao, connector);
@@ -68,9 +72,11 @@ public class App {
 	}
 
 	private static void startCreated() throws ClassNotFoundException, EbayConnectorException {
-		Dao dao = new Dao();
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit");
+		EntityManager manager = factory.createEntityManager();
+		Dao dao = new Dao(manager);
 		EbayController connector = new EbayControllerImpl();
-		for (ElaborazioniEbay e : dao.findAll()) {
+		for (SnzhElaborazioniebay e : dao.findAll()) {
 			connector.start(e);
 		}
 	}
