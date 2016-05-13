@@ -31,17 +31,17 @@ public class App {
 
 	public static void main(String[] args) throws Exception {
 		
-    	System.setProperty("http.proxySet", "true");
-    	System.setProperty("http.proxyHost", "10.100.114.67");
-    	System.setProperty("http.proxyPort", "8080");
+		copyInSystem("http.proxySet");
+		copyInSystem("http.proxyHost");
+		copyInSystem("http.proxyPort");
 
-    	System.setProperty("https.proxySet", "true");
-    	System.setProperty("https.proxyHost", "10.100.114.67");
-    	System.setProperty("https.proxyPort", "8080");
+		copyInSystem("https.proxySet");
+		copyInSystem("https.proxyHost");
+		copyInSystem("https.proxyPort");
     	
     	// startCreated();
-//    	showStatus();
-//    	System.exit(0);
+		// showStatus();
+		// System.exit(0);
     	    	
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit", Configurazione.getConfiguration());
 		EntityManager manager = factory.createEntityManager();
@@ -71,6 +71,14 @@ public class App {
 					+ ", " + profile.getPercentComplete() + "%");
 		}
 		System.out.println(response);
+	}
+	
+	private static void copyInSystem(String property) {
+		String value = Configurazione.getText(property);
+		if ( value == null ) {
+			return;
+		}
+    	System.setProperty(property, value);
 	}
 
 	private static void startCreated() throws ClassNotFoundException, EbayConnectorException {
