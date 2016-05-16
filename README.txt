@@ -1,12 +1,21 @@
 
-Stati Ebay (JobStatus)	Stato
+Lanciare il comando con:
 
----------------------[Pusher]-------------------
+> java -jar ebaypusher.jar
+
+
+
+Documentazione Stati
+--------------------
+
+
+* [Pusher]
 
 <crea batch>			IN_CORSO_DI_INVIO
 CREATED
 
----------------------[Puller]--------------------
+* [Puller]
+
 <upload file>
 CREATED					INVIATO_EBAY
 
