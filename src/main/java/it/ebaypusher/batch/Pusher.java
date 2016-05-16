@@ -20,86 +20,77 @@ import it.ebaypusher.utility.Utility;
 /**
  * Questo processo si occupa di sottomettere a ebay per la pubblicazione
  * i file contenuti nella cartella OUTPUT.
- * 
+ *
  * Il processo inserisce un rigo in tabella e sottomette il job a ebay.
- *  
+ *
  * @author Michele Mastrogiovanni
  */
 public class Pusher implements Runnable {
 
 	private Log logger = LogFactory.getLog(Pusher.class);
-	
+
 	private EbayController connector;
-	
+
 	private Dao dao;
-	
+
 	public Pusher(Dao dao, EbayController connector) {
 		this.connector = connector;
 		this.dao = dao;
 	}
-	
+
 	@Override
 	public void run() {
-						
+
 		File root = new File(Configurazione.getText(Configurazione.OUTGOING_DIR));
 		logger.info("Scanning della cartella di output: " + root.getAbsolutePath());
-		
+
 		final String extension = getExtension();
 		logger.info("Considero i file con estensione: " + extension + " (case sensitive)");
-		
-		while ( ! Thread.interrupted() ) {
-			
-			logger.info("Pusher round");
-			
-			for ( File file : root.listFiles(new FileFilter() {
-				
-				@Override
-				public boolean accept(File pathname) {
-					
-					if (!pathname.isFile()) {
-						return false;
-					}
 
-					return ( pathname.getName().endsWith(extension));
-					
+		logger.info("Pusher begin to work...");
+
+		for ( File file : root.listFiles(new FileFilter() {
+
+			@Override
+			public boolean accept(File pathname) {
+
+				if (!pathname.isFile()) {
+					return false;
 				}
-				
-			})) {
-				
-				try {
-					
-					SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
-					elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
-					
-					elaborazione.setFilename(file.getName());
-					elaborazione.setPathFileInput(file.getAbsolutePath());
-					elaborazione.setNumTentativi(0);
-					
-					// Crea un batch di inserimento ebay
-					connector.create(elaborazione);
-					
-					elaborazione.setJobStatus(JobStatus.CREATED.toString());
-					elaborazione.setFaseJob(Stato.IN_CORSO_DI_INVIO.toString());
-					elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
-					dao.insert(elaborazione);
-					
-				}
-				catch (Throwable t) {
-					
-					logger.error("Errore di upload batch del file: " + file, t);
-					
-				}
-				
+
+				return ( pathname.getName().endsWith(extension));
+
 			}
-			
+
+		})) {
+
 			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				logger.error("Batch stoppato");
-				break;
+
+				SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
+				elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
+
+				elaborazione.setFilename(file.getName());
+				elaborazione.setPathFileInput(file.getAbsolutePath());
+				elaborazione.setNumTentativi(0);
+
+				// Crea un batch di inserimento ebay
+				connector.create(elaborazione);
+
+				elaborazione.setJobStatus(JobStatus.CREATED.toString());
+				elaborazione.setFaseJob(Stato.IN_CORSO_DI_INVIO.toString());
+				elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
+				dao.insert(elaborazione);
+
 			}
-			
+			catch (Throwable t) {
+
+				logger.error("Errore di upload batch del file: " + file, t);
+
+			}
+
 		}
+
+		logger.info("Pusher terminated to work");
 
 	}
 

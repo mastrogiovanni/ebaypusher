@@ -19,6 +19,14 @@ import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
 import it.ebaypusher.utility.Utility;
 
+/**
+ * Questo batch si occupa di portare avanti il processo di upload
+ * di un file XML presso il connettore di EBay e di mantenere
+ * aggiornato il record sul database che rappresenta tale upload.
+ *
+ * Il processo continua a girare finchè non ci sono più job
+ * che debbano inviare il file e avviare il processing.
+ */
 public class Puller implements Runnable { 
 
 	private Log logger = LogFactory.getLog(Puller.class);
@@ -35,9 +43,13 @@ public class Puller implements Runnable {
 	@Override
 	public void run() {
 
-		while ( !Thread.interrupted() ) {
+		boolean shouldInterrupt = false;
 
-			logger.info("Puller round");
+		while ( !Thread.interrupted() && ! shouldInterrupt ) {
+
+			shouldInterrupt = true;
+
+			logger.info("Puller begin to work...");
 
 			for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
 
@@ -49,8 +61,13 @@ public class Puller implements Runnable {
 					// Batch ebay creato
 					case CREATED:
 
+						// Questo
+						shouldInterrupt = false;
+
 						// Batch ebay creato ma file non inviato
 						if (Stato.IN_CORSO_DI_INVIO.toString().equals(elaborazione.getFaseJob())) {
+
+							logger.debug("Job " + elaborazione.getJobId() + " file da inviare");
 
 							// Il file deve essere trasferito su ebay
 							connector.upload(elaborazione);
@@ -79,6 +96,10 @@ public class Puller implements Runnable {
 
 					// Deve essere avviata la schedulazione
 					case SCHEDULED:
+
+						// Questo
+						shouldInterrupt = false;
+
 					case IN_PROCESS:
 						
 						// Richiede aggiornamento di stato a Ebay
@@ -142,6 +163,8 @@ public class Puller implements Runnable {
 			}
 
 		}
+
+		logger.info("Puller terminated to");
 
 	}	
 
