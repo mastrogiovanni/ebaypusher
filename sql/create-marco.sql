@@ -12,7 +12,7 @@ create table SNZH_ELABORAZIONIEBAY
    PATH_FILE_ESITO   text,
    DATA_INSERIMENTO datetime not null,
    DATA_ELABORAZIONE datetime,
-   STATO_JOB        varchar(30) not null,
+   NUM_TENTATIVI int not null default 0,
    ERRORE_JOB       text,
    primary key (ID_ELABORAZIONE)
 );

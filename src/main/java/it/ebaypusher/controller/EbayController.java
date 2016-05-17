@@ -45,6 +45,14 @@ public interface EbayController {
 	 */
 	void saveResponseFile(SnzhElaborazioniebay elaborazione) throws EbayConnectorException;
 
+	/**
+	 * Stoppa una elaborazione specificando il Job id
+	 * 
+	 * @param jobId
+	 * @throws EbayConnectorException
+	 */
+	void abort(String jobId) throws EbayConnectorException;
+
 }
 
 

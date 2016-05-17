@@ -15,6 +15,7 @@ import javax.activation.DataHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.ebay.marketplace.services.AbortJobResponse;
 import com.ebay.marketplace.services.AckValue;
 import com.ebay.marketplace.services.BaseServiceResponse;
 import com.ebay.marketplace.services.CreateUploadJobResponse;
@@ -64,6 +65,19 @@ public class EbayControllerImpl implements EbayController {
 		elaborazione.setFileReferenceId(createUploadJobresponse.getFileReferenceId());
 		elaborazione.setJobId(createUploadJobresponse.getJobId());
 			
+	}
+	
+	@Override
+	public void abort(String jobId) throws EbayConnectorException {
+
+		// Effettua l'upload del job
+		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
+		
+		AbortJobResponse response = bdeActions.abortJobs(jobId);
+
+		// Verifica la risposta del WS
+		check(response);
+
 	}
 	
 	@Override

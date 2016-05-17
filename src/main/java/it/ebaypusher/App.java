@@ -1,6 +1,7 @@
 package it.ebaypusher;
 
 import java.io.File;
+import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -33,18 +34,10 @@ public class App {
 
 	public static void main(String[] args) throws Exception {
 
-		if ( args.length > 0 ) {
-			if ( "status".equals(args[0])) {
-				logger.info("Show status of job on EBay");
-				showStatus();
-				System.exit(0);
-			}
-		}
-		
 		// Load log4j from file
 		LogManager.resetConfiguration();
 		DOMConfigurator.configure(new File("conf", "log4j.xml").getPath());
-
+		
 		copyInSystem("http.proxySet");
 		copyInSystem("http.proxyHost");
 		copyInSystem("http.proxyPort");
@@ -53,14 +46,48 @@ public class App {
 		copyInSystem("https.proxyHost");
 		copyInSystem("https.proxyPort");
 
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit", Configurazione.getConfiguration());
+		if ( args.length > 0 ) {
+			if ( "status".equals(args[0])) {
+				logger.info("Show status of job on EBay");
+				showStatus();
+				System.exit(0);
+			}
+			else if ("abort".equals(args[0])) {
+				if ( args.length > 1 ) {
+					String jobId = args[1];
+					logger.info("Stopping job: " + jobId);
+					EbayController connector = new EbayControllerImpl();
+					connector.abort(jobId);
+					System.exit(0);
+				}
+			}
+			else if ("killall".equals(args[0])) {
+				BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
+				GetJobsResponse response = bdeActions.getJobs(null);
+				EbayController connector = new EbayControllerImpl();
+				for (JobProfile profile : response.getJobProfile()) {
+					if ( "CREATED".equals(profile.getJobStatus().toString())) {
+						connector.abort(profile.getJobId());
+						System.out.println("Killed job: " + profile.getJobId());
+					}
+				}
+				System.exit(0);
+			}
+		}
+
+		Properties props = Configurazione.getConfiguration();
+		props.setProperty("eclipselink.ddl-generation", "create-tables");
+		props.setProperty("eclipselink.ddl-generation.output-mode", "database");
+		props.setProperty("eclipselink.logging.level", "SEVERE");
+
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit", props);
 		EntityManager manager = factory.createEntityManager();
 		Dao dao = new Dao(manager);
 
 		logger.info("Database connected");
 
 		EbayController connector = new EbayControllerImpl();
-
+		
 		logger.info("Ebay connection setup");
 
 		Pusher pusher = new Pusher(dao, connector);
