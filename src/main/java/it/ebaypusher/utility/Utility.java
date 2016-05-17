@@ -50,6 +50,8 @@ public class Utility {
 		StringBuilder builder = new StringBuilder();
 		builder.append(elaborazione.getIdElaborazione());
 		builder.append("_");
+		builder.append(elaborazione.getFilename());
+		builder.append("_");
 		builder.append(elaborazione.getJobId());
 		builder.append("_");
 		builder.append(DateUtility.formatDate(elaborazione.getDataInserimento(), "yyyyMMdd"));

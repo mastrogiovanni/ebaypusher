@@ -30,7 +30,15 @@ public class App {
 	private static Log logger = LogFactory.getLog(App.class);
 
 	public static void main(String[] args) throws Exception {
-		
+
+		if ( args.length > 0 ) {
+			if ( "status".equals(args[0])) {
+				logger.info("Show status of job on EBay");
+				showStatus();
+				System.exit(0);
+			}
+		}
+
 		copyInSystem("http.proxySet");
 		copyInSystem("http.proxyHost");
 		copyInSystem("http.proxyPort");
@@ -38,29 +46,23 @@ public class App {
 		copyInSystem("https.proxySet");
 		copyInSystem("https.proxyHost");
 		copyInSystem("https.proxyPort");
-    	
-    	// startCreated();
-		// showStatus();
-		// System.exit(0);
-    	    	
+
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit", Configurazione.getConfiguration());
 		EntityManager manager = factory.createEntityManager();
 		Dao dao = new Dao(manager);
-		
+
 		logger.info("Database connected");
-		
+
 		EbayController connector = new EbayControllerImpl();
 
 		logger.info("Ebay connection setup");
 
 		Pusher pusher = new Pusher(dao, connector);
-		Thread threadPusher = new Thread(pusher);
-		threadPusher.start();
-		
+		pusher.run();
+
 		Puller puller = new Puller(dao, connector);
-		Thread threadPuller = new Thread(puller);
-		threadPuller.start();
-	
+		puller.run();
+
 	}
 
 	private static void showStatus() throws Exception {
@@ -68,27 +70,17 @@ public class App {
 		GetJobsResponse response = bdeActions.getJobs(null);
 		for (JobProfile profile : response.getJobProfile()) {
 			System.out.println(profile.getJobStatus() + ": " + profile.getJobId() + ", " + profile.getFileReferenceId()
-					+ ", " + profile.getPercentComplete() + "%");
+			+ ", " + profile.getPercentComplete() + "%");
 		}
 		System.out.println(response);
 	}
-	
+
 	private static void copyInSystem(String property) {
 		String value = Configurazione.getText(property);
 		if ( value == null ) {
 			return;
 		}
-    	System.setProperty(property, value);
-	}
-
-	private static void startCreated() throws ClassNotFoundException, EbayConnectorException {
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit");
-		EntityManager manager = factory.createEntityManager();
-		Dao dao = new Dao(manager);
-		EbayController connector = new EbayControllerImpl();
-		for (SnzhElaborazioniebay e : dao.findAll()) {
-			connector.start(e);
-		}
+		System.setProperty(property, value);
 	}
 
 }
