@@ -1,11 +1,15 @@
 package it.ebaypusher;
 
+import java.io.File;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.xml.DOMConfigurator;
 
 import com.ebay.marketplace.services.GetJobsResponse;
 import com.ebay.marketplace.services.JobProfile;
@@ -13,11 +17,9 @@ import com.ebay.marketplace.services.JobProfile;
 import ebay.dts.client.BulkDataExchangeActions;
 import it.ebaypusher.batch.Puller;
 import it.ebaypusher.batch.Pusher;
-import it.ebaypusher.controller.EbayConnectorException;
 import it.ebaypusher.controller.EbayController;
 import it.ebaypusher.controller.EbayControllerImpl;
 import it.ebaypusher.dao.Dao;
-import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
 
 /**
@@ -38,6 +40,10 @@ public class App {
 				System.exit(0);
 			}
 		}
+		
+		// Load log4j from file
+		LogManager.resetConfiguration();
+		DOMConfigurator.configure(new File("conf", "log4j.xml").getPath());
 
 		copyInSystem("http.proxySet");
 		copyInSystem("http.proxyHost");

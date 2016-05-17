@@ -23,7 +23,7 @@
 		value="trace" /> <appender-ref ref="elaborazioni" /> </category> -->
 
 	<root>
-		<priority value="info" />
+		<priority value="trace" />
 		<appender-ref ref="console" />
 		<appender-ref ref="fileAppender" />
 	</root>

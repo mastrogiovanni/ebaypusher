@@ -57,21 +57,7 @@ public class Configurazione {
 		}
 		return value;
 	}
-	
-//	public static BigDecimal getValue(String property) {
-//		String value = getText(property);
-//		if ( value == null ) {
-//			return null;
-//		}
-//		try {
-//			return new BigDecimal(value);
-//		}
-//		catch ( NumberFormatException e ) {
-//			logger.error("Propertietà " + property + " non è un numero: scartata");
-//			return null;
-//		}
-//	}
-	
+		
 	public static int getIntValue(String property, int defaultValue) {
 		String value = getText(property);
 		if ( value == null ) {
