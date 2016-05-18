@@ -6,6 +6,7 @@ import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.xml.parsers.FactoryConfigurationError;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,13 +15,16 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 import com.ebay.marketplace.services.GetJobsResponse;
 import com.ebay.marketplace.services.JobProfile;
+import com.ebay.marketplace.services.JobStatus;
 
 import ebay.dts.client.BulkDataExchangeActions;
 import it.ebaypusher.batch.Puller;
 import it.ebaypusher.batch.Pusher;
+import it.ebaypusher.controller.EbayConnectorException;
 import it.ebaypusher.controller.EbayController;
 import it.ebaypusher.controller.EbayControllerImpl;
 import it.ebaypusher.dao.Dao;
+import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
 
 /**
@@ -61,18 +65,6 @@ public class App {
 					System.exit(0);
 				}
 			}
-			else if ("killall".equals(args[0])) {
-				BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
-				GetJobsResponse response = bdeActions.getJobs(null);
-				EbayController connector = new EbayControllerImpl();
-				for (JobProfile profile : response.getJobProfile()) {
-					if ( "CREATED".equals(profile.getJobStatus().toString())) {
-						connector.abort(profile.getJobId());
-						System.out.println("Killed job: " + profile.getJobId());
-					}
-				}
-				System.exit(0);
-			}
 		}
 
 		Properties props = Configurazione.getConfiguration();
@@ -83,19 +75,34 @@ public class App {
 		EntityManagerFactory factory = Persistence.createEntityManagerFactory("persistenceUnit", props);
 		EntityManager manager = factory.createEntityManager();
 		Dao dao = new Dao(manager);
-
 		logger.info("Database connected");
-
-		EbayController connector = new EbayControllerImpl();
 		
+		EbayController connector = new EbayControllerImpl();
 		logger.info("Ebay connection setup");
+
+		if ( Configurazione.getConfiguration().get("perpetual") != null ) {
+			while ( true ) {
+				workCycle(dao, connector);
+			}
+		}
+		else {
+			workCycle(dao, connector);
+		}
+
+	}
+
+	private static void workCycle(Dao dao, EbayController connector) throws FactoryConfigurationError, Exception, EbayConnectorException, ClassNotFoundException {
+				
+		if ( Configurazione.getConfiguration().getProperty("killall") != null ) {
+			connector.killAll();
+		}
 
 		Pusher pusher = new Pusher(dao, connector);
 		pusher.run();
 
 		Puller puller = new Puller(dao, connector);
 		puller.run();
-
+		
 	}
 
 	private static void showStatus() throws Exception {
@@ -115,5 +122,5 @@ public class App {
 		}
 		System.setProperty(property, value);
 	}
-
+	
 }

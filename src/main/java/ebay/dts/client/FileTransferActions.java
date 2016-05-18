@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.activation.DataHandler;
@@ -156,8 +157,7 @@ public class FileTransferActions {
 			DataHandler dh = attachment.getData();
 			try {
 				InputStream in = dh.getInputStream();
-				BufferedInputStream bis = new BufferedInputStream(in);
-
+				BufferedInputStream bis = new BufferedInputStream(new GZIPInputStream(in));
 				FileOutputStream fo = new FileOutputStream(new File(fileName)); // "C:/myDownLoadFile.gz"
 				BufferedOutputStream bos = new BufferedOutputStream(fo);
 				int bytes_read = 0;
@@ -168,7 +168,7 @@ public class FileTransferActions {
 				bis.close();
 				bos.flush();
 				bos.close();
-				System.out.println("File attachment has been saved successfully to " + fileName);
+				logger.info("File attachment has been saved successfully to " + fileName);
 
 			} catch (IOException e) {
 				logger.severe("\nException caught while trying to save the attachement.");
@@ -181,7 +181,7 @@ public class FileTransferActions {
 		return downloadOK;
 	}
 
-	public DownloadFileResponse downloadFile(String fileName, String jobId, String fileReferenceId) {
+	public DownloadFileResponse downloadFile(String jobId, String fileReferenceId) {
 		String callName = "downloadFile";
 		DownloadFileResponse response = null;
 		try {

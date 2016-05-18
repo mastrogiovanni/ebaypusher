@@ -105,16 +105,21 @@ public class Puller implements Runnable {
 						// Richiede aggiornamento di stato a Ebay
 						connector.updateProgressAndStatus(elaborazione);
 
-						// Se il batch non è più schedulato o in progress
-						// salva la response di ebay
-						if (!JobStatus.IN_PROCESS.toString().equals(elaborazione.getJobStatus()) &&
-								!JobStatus.SCHEDULED.toString().equals(elaborazione.getJobStatus())) {
+						if (JobStatus.COMPLETED.toString().equals(elaborazione.getJobStatus()) 
+								&& elaborazione.getJobPercCompl() == 100.0) {
 							
-							connector.saveResponseFile(elaborazione);
+							if ( connector.saveResponseFile(elaborazione)) {
+
+								dao.update(elaborazione);
+
+							}
 							
 						}
+						else {
 
-						dao.update(elaborazione);
+							dao.update(elaborazione);
+
+						}
 						break;
 
 					case COMPLETED:

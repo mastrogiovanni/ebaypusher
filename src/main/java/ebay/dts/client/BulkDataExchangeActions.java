@@ -97,10 +97,10 @@ public class BulkDataExchangeActions {
 		}
 		com.ebay.marketplace.services.GetJobsResponse getJobsResp = port.getJobs(getJobsReq);
 		List<JobProfile> jobs = getJobsResp.getJobProfile();
-		Iterator itr = jobs.iterator();
+		Iterator<JobProfile> itr = jobs.iterator();
 		while (itr.hasNext()) {
 			JobProfile job = (JobProfile) itr.next();
-			logger.info(job.getJobId() + " : " + job.getJobType() + " : " + job.getJobStatus());
+			logger.trace(job.getJobId() + " : " + job.getJobType() + " : " + job.getJobStatus());
 		}
 
 		return getJobsResp;

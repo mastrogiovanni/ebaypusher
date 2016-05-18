@@ -37,7 +37,7 @@ public class Utility {
 
 	public static File getReportFile(SnzhElaborazioniebay elaborazione) {
 		File root = new File(Configurazione.getText(Configurazione.REPORT_DIR));
-		String fileName = getNewName(elaborazione) + ".xml.gz";
+		String fileName = getNewName(elaborazione) + ".xml";
 		return new File(root, fileName);
 	}
 

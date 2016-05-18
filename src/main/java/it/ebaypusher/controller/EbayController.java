@@ -1,5 +1,7 @@
 package it.ebaypusher.controller;
 
+import java.io.File;
+
 import it.ebaypusher.dao.SnzhElaborazioniebay;
 
 public interface EbayController {
@@ -43,7 +45,7 @@ public interface EbayController {
 	 * @param elaborazione
 	 * @throws EbayConnectorException
 	 */
-	void saveResponseFile(SnzhElaborazioniebay elaborazione) throws EbayConnectorException;
+	boolean saveResponseFile(SnzhElaborazioniebay elaborazione) throws EbayConnectorException;
 
 	/**
 	 * Stoppa una elaborazione specificando il Job id
@@ -52,6 +54,14 @@ public interface EbayController {
 	 * @throws EbayConnectorException
 	 */
 	void abort(String jobId) throws EbayConnectorException;
+
+	/**
+	 * Killa tutti i job che sono online in stato CREATED
+	 * @throws EbayConnectorException 
+	 */
+	void killAll() throws EbayConnectorException;
+
+	boolean downloadResponse(String jobId, File output) throws EbayConnectorException;
 
 }
 
