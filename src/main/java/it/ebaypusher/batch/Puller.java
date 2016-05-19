@@ -1,14 +1,12 @@
 package it.ebaypusher.batch;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.File;
 import java.sql.Timestamp;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.ebay.marketplace.services.JobProfile;
 import com.ebay.marketplace.services.JobStatus;
 
 import it.ebaypusher.constants.Stato;
@@ -53,9 +51,34 @@ public class Puller implements Runnable {
 
 			for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
 
+				boolean downloadFile = false;
+				
 				try {
+					
+					JobStatus currentStatus = JobStatus.valueOf(elaborazione.getJobStatus());
+					JobStatus status = currentStatus;
+					switch (currentStatus) {
+					case ABORTED:
+					case FAILED:
+						break;
 
-					JobStatus status = JobStatus.valueOf(elaborazione.getJobStatus());
+					case COMPLETED:
+						if (elaborazione.getJobPercCompl() == 100.0) {
+							break;
+						}
+
+					default:
+						JobProfile jobProfile = connector.getJobProfile(elaborazione.getJobId());
+						status = jobProfile.getJobStatus();
+						elaborazione.setJobStatus(status.toString());
+						if ( jobProfile.getPercentComplete() != null ) {
+							elaborazione.setJobPercCompl((int) Math.round(jobProfile.getPercentComplete()));
+							downloadFile = true;
+						}
+						logger.info("Job " + elaborazione.getJobId() + "(" + elaborazione.getFilename() + ") status: " + status.toString());
+					
+					}
+
 					switch (status) {
 
 					// Batch ebay creato
@@ -63,7 +86,7 @@ public class Puller implements Runnable {
 
 						// Questo
 						shouldInterrupt = false;
-
+						
 						// Batch ebay creato ma file non inviato
 						if (Stato.IN_CORSO_DI_INVIO.toString().equals(elaborazione.getFaseJob())) {
 
@@ -75,6 +98,9 @@ public class Puller implements Runnable {
 							// Sposta il file da OUTPUT a SENT
 							if (!Utility.getInputFile(elaborazione).renameTo(Utility.getSentFile(elaborazione))) {
 								logger.error("Non posso spostare il file nella cartella SENT: " + elaborazione.getFilename());
+							}
+							else {
+								logger.info("File di input spostato in SENT: " + Utility.getSentFile(elaborazione));
 							}
 
 							elaborazione.setPathFileInput(Utility.getSentFile(elaborazione).getAbsolutePath());
@@ -101,6 +127,11 @@ public class Puller implements Runnable {
 						shouldInterrupt = false;
 
 					case IN_PROCESS:
+					case COMPLETED:
+						
+						if ( status != JobStatus.COMPLETED || !downloadFile ) {
+							break;
+						}
 						
 						// Richiede aggiornamento di stato a Ebay
 						connector.updateProgressAndStatus(elaborazione);
@@ -121,22 +152,20 @@ public class Puller implements Runnable {
 
 						}
 						break;
-
-					case COMPLETED:
-						break;
 						
 					case ABORTED:
 					case FAILED:
 
 						if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3)) {
+
+							new File(elaborazione.getPathFileInput()).renameTo(Utility.getErrorFile(elaborazione));
+							
+							elaborazione.setPathFileEsito(Utility.getErrorFile(elaborazione).getAbsolutePath());
+							elaborazione.setErroreJob(status.toString());
 							elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
 							dao.update(elaborazione);
 							continue;
 						}
-
-						Utility.copy(
-								new FileInputStream(Utility.getSentFile(elaborazione)), 
-								new FileOutputStream(Utility.getInputFile(elaborazione)));
 
 						// Crea un batch di inserimento ebay
 						connector.create(elaborazione);
@@ -151,11 +180,7 @@ public class Puller implements Runnable {
 					}
 
 				} catch (EbayConnectorException e) {
-					logger.error("Errore nella chiamata di un servizio ebay", e);
-				} catch (FileNotFoundException e) {
-					logger.error("Errore nella nel tentativo di risottomettere una elaborazione", e);
-				} catch (IOException e) {
-					logger.error("Errore nella nel tentativo di risottomettere una elaborazione", e);
+					logger.error("Errore nell chiamata di un servizio ebay", e);
 				}
 
 			}
@@ -169,7 +194,7 @@ public class Puller implements Runnable {
 
 		}
 
-		logger.info("Puller terminated to");
+		logger.info("Puller terminated to work");
 
 	}	
 

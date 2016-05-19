@@ -46,10 +46,8 @@ public class EbayControllerImpl implements EbayController {
 	@Override
 	public void create(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
 
-		File file = Utility.getInputFile(elaborazione);
-
 		// Cattura il tipo di job
-		String jobType = getJobTypeFromXML(file);
+		String jobType = getJobTypeFromXML(new File(elaborazione.getPathFileInput()));
 
 		// Effettua l'upload del job
 		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
@@ -85,14 +83,12 @@ public class EbayControllerImpl implements EbayController {
 	@Override
 	public void upload(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
 
-		File file = Utility.getInputFile(elaborazione);
-
-		logger.info("Inizio upload file: " + file);
+		logger.info("Inizio upload file: " + elaborazione.getPathFileInput());
 
 		FileTransferActions ftActions = new FileTransferActions(Configurazione.getConfiguration());
 
 		UploadFileResponse uploadFileResp = ftActions.uploadFile2(
-				file.getAbsolutePath(), 
+				elaborazione.getPathFileInput(), 
 				elaborazione.getJobId(), 
 				elaborazione.getFileReferenceId());
 
@@ -102,7 +98,7 @@ public class EbayControllerImpl implements EbayController {
 
 		check(uploadFileResp);
 
-		logger.info("File trasferito con successo: " + file);
+		logger.info("File trasferito con successo: " + elaborazione.getPathFileInput());
 
 	}
 
@@ -120,17 +116,24 @@ public class EbayControllerImpl implements EbayController {
 		logger.info("Batch elaborazione ebay avviato con successo: " + elaborazione.getJobId());
 
 	}
+	
+	@Override
+	public JobProfile getJobProfile(String jobId) throws EbayConnectorException {
+		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
+		GetJobStatusResponse getJobStatusResp = bdeActions.getJobStatus(jobId);
+		check(getJobStatusResp);
+		JobProfile jobProfile = retrieveOneJobStatus(getJobStatusResp);
+		if ( jobProfile == null ) {
+			throw new EbayConnectorException("Job profile not found: " + jobId);
+		}
+		return jobProfile;
+	}
 
 	@Override
 	public void updateProgressAndStatus(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
 
-		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
-		GetJobStatusResponse getJobStatusResp = bdeActions.getJobStatus(elaborazione.getJobId());
-
-		check(getJobStatusResp);
-
-		JobProfile job = retrieveOneJobStatus(getJobStatusResp);
-
+		JobProfile job = getJobProfile(elaborazione.getJobId());
+		
 		// Aggiorna l'avanzamento
 		if ( job.getPercentComplete() != null ) {
 			elaborazione.setJobPercCompl((int) Math.round(job.getPercentComplete()));
