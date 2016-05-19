@@ -2,6 +2,8 @@ package it.ebaypusher.controller;
 
 import java.io.File;
 
+import com.ebay.marketplace.services.JobProfile;
+
 import it.ebaypusher.dao.SnzhElaborazioniebay;
 
 public interface EbayController {
@@ -62,6 +64,13 @@ public interface EbayController {
 	void killAll() throws EbayConnectorException;
 
 	boolean downloadResponse(String jobId, File output) throws EbayConnectorException;
+
+	/**
+	 * @param jobId Identifier of a job
+	 * @return Status of a job
+	 * @throws EbayConnectorException
+	 */
+	JobProfile getJobProfile(String jobId) throws EbayConnectorException;
 
 }
 

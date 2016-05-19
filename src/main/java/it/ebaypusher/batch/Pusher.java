@@ -46,10 +46,8 @@ public class Pusher implements Runnable {
 
 		final String extension = getExtension();
 		logger.info("Considero i file con estensione: " + extension + " (case sensitive)");
-
-		logger.info("Pusher begin to work...");
-
-		for ( File file : root.listFiles(new FileFilter() {
+		
+		File[] files = root.listFiles(new FileFilter() {
 
 			@Override
 			public boolean accept(File pathname) {
@@ -62,7 +60,16 @@ public class Pusher implements Runnable {
 
 			}
 
-		})) {
+		});
+
+		if ( files.length == 0 ) {
+			logger.info("No file in output: pusher terminated");
+			return;			
+		}
+
+		logger.info("Pusher begin to work...");
+
+		for ( File file : files ) {
 
 			try {
 
