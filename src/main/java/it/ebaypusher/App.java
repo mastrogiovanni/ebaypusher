@@ -1,6 +1,7 @@
 package it.ebaypusher;
 
 import java.io.File;
+import java.io.OutputStreamWriter;
 import java.util.Properties;
 
 import javax.persistence.EntityManager;
@@ -12,10 +13,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.json.JSONWriter;
 
 import com.ebay.marketplace.services.GetJobsResponse;
 import com.ebay.marketplace.services.JobProfile;
-import com.ebay.marketplace.services.JobStatus;
 
 import ebay.dts.client.BulkDataExchangeActions;
 import it.ebaypusher.batch.Puller;
@@ -24,7 +25,6 @@ import it.ebaypusher.controller.EbayConnectorException;
 import it.ebaypusher.controller.EbayController;
 import it.ebaypusher.controller.EbayControllerImpl;
 import it.ebaypusher.dao.Dao;
-import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
 
 /**
@@ -35,6 +35,14 @@ import it.ebaypusher.utility.Configurazione;
 public class App {
 
 	private static Log logger = LogFactory.getLog(App.class);
+	
+	private static final void usage() {
+		System.out.println("Usage: java ebaypusher.jar <command> ... options");
+		System.out.println("");
+		
+		// [ batch | status <DateFrom> <DateTo> <JobId> <JobStatus> | abort <JobId> 		
+		
+	}
 
 	public static void main(String[] args) throws Exception {
 
@@ -49,7 +57,7 @@ public class App {
 		copyInSystem("https.proxySet");
 		copyInSystem("https.proxyHost");
 		copyInSystem("https.proxyPort");
-
+		
 		if ( args.length > 0 ) {
 			if ( "status".equals(args[0])) {
 				logger.info("Show status of job on EBay");
@@ -79,8 +87,6 @@ public class App {
 		
 		EbayController connector = new EbayControllerImpl();
 		logger.info("Ebay connection setup");
-		
-//		connector.downloadResponse("5827135321", new File("/home/michele/ebay/risposta.xml"));
 
 		if ( Configurazione.getConfiguration().get("perpetual") != null ) {
 			while ( true ) {
@@ -109,14 +115,51 @@ public class App {
 
 	private static void showStatus() throws Exception {
 		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
-		GetJobsResponse response = bdeActions.getJobs(null);
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append("creationTimeFrom=2016-05-18");
+		
+		builder.append("&creationTimeTo=2016-05-19");
+		
+		GetJobsResponse response = bdeActions.getJobs(builder.toString());
+		OutputStreamWriter out = new OutputStreamWriter(System.out);
 		for (JobProfile profile : response.getJobProfile()) {
-			System.out.println(profile.getJobStatus() + ": " + profile.getJobId() + ", " + profile.getFileReferenceId()
-			+ ", " + profile.getPercentComplete() + "%");
+			
+			JSONWriter writer = new JSONWriter(out);
+			writer
+				.object()
+					.key("id").value(profile.getJobId())
+					.key("status").value(profile.getJobStatus())
+					.key("type").value(profile.getJobType())
+					.key("percent").value(profile.getPercentComplete())
+					.key("creation time").value(profile.getCreationTime())
+					.key("completion time").value(profile.getCompletionTime())
+					.key("file id").value(profile.getFileReferenceId())
+					.key("input file id").value(profile.getInputFileReferenceId())
+				.endObject();
+			
+			out.append("\n");
+			
+//			System.out.println(profile.getJobStatus() + ": " +  + ", " + profile.getFileReferenceId()
+//			+ ", " + profile.getPercentComplete() + "%");
 		}
-		System.out.println(response);
+		
+		out.flush();
+
 	}
 
+//	public static <T> Map<String, Field> getAllFields(Class<T> clazz) {
+//		Map<String, Field> result = new TreeMap<String, Field>();
+//		Class<?> tmpClass = clazz;
+//		while (tmpClass != null) {
+//			for ( Field field : tmpClass.getDeclaredFields() ) {
+//				result.put(field.getName(), field);	    		
+//			}
+//			tmpClass = tmpClass .getSuperclass();
+//		}
+//		return result;
+//	}
+	
 	private static void copyInSystem(String property) {
 		String value = Configurazione.getText(property);
 		if ( value == null ) {

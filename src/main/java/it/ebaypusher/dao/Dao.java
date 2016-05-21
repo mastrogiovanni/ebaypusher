@@ -50,7 +50,11 @@ public class Dao {
 		manager.persist(elaborazione);
 		commit();
 	}
-		
+
+	public SnzhElaborazioniebay findById(String idElaborazione) {
+		return manager.find(SnzhElaborazioniebay.class, idElaborazione);
+	}
+
 	public List<SnzhElaborazioniebay> findAll() {
 		return manager.createQuery("Select a From SnzhElaborazioniebay a", SnzhElaborazioniebay.class).getResultList();
 	}

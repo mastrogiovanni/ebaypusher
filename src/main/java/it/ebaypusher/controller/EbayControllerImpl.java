@@ -316,10 +316,10 @@ public class EbayControllerImpl implements EbayController {
 			if (errorMsg != null) {
 				ErrorData error = response.getErrorMessage().getError().get(0);
 				if (response.getAck().equals(AckValue.WARNING)) {
-					throw new EbayConnectorException(error.getSeverity() + " --> ErrorID=" + error.getErrorId() + " ; ErrorMessage=\"" + error.getMessage() + "\"");
+					throw new EbayConnectorException(error);
 				} else if (response.getAck().equals(AckValue.FAILURE)
 						|| response.getAck().equals(AckValue.PARTIAL_FAILURE)) {
-					throw new EbayConnectorException(error.getSeverity() + " --> ErrorID=" + error.getErrorId() + " ; ErrorMessage=\"" + error.getMessage() + "\"");
+					throw new EbayConnectorException(error);
 				}
 			}
 		}

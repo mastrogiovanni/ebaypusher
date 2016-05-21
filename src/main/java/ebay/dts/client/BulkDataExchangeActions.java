@@ -55,7 +55,6 @@ public class BulkDataExchangeActions {
 		String callName = "getJobs";
 		BulkDataExchangeServicePort port = call.setRequestContext(callName);
 		com.ebay.marketplace.services.GetJobsRequest getJobsReq = new com.ebay.marketplace.services.GetJobsRequest();
-
 		if (conditionsStr != null && conditionsStr.length() > 0) {
 			XMLGregorianCalendar fromCal = null;
 			// validating the input conditions

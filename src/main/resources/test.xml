@@ -1,0 +1,197 @@
+
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<BulkDataExchangeRequests xmlns="urn:ebay:apis:eBLBaseComponents">
+	<Header>
+		<Version>951</Version>
+		<SiteID>101</SiteID>
+	</Header>
+	﻿
+	<ReviseFixedPriceItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">
+		<ErrorLanguage>it_IT</ErrorLanguage>
+		<WarningLevel>High</WarningLevel>
+		<Version>951</Version>
+		<Item>
+			<CategoryMappingAllowed>true</CategoryMappingAllowed>
+			<ApplicationData></ApplicationData>
+			<AutoPay>true</AutoPay>
+			<ConditionID>1000</ConditionID>
+			<Country>IT</Country>
+			<Currency>EUR</Currency>
+			<Description><![CDATA[<font style="color:000000#; font-size:16px; font-family:Verdana"><h1 style="font-size:18px;">Scarpa da donna per ballo tango in macramè nero</h1><p>Scarpa da ballo per donna adatta a tutti i tipi di ballo Tango (Standard, Argentino in tutti i suoi stili) ma che può essere utilizzata anche per balli Latino-Americani (Cha Cha Cha, Rumba, Jive, Samba, Paso Doble) e danze Caraibiche (Salsa, Bachata, Merengue). La scarpa è interamente realizzata in tessuto macramè nero. Tacco misura 90A (tacco 9cm a punta stretta) , fodera e sottopiede in tessuto colore nero e suola in bufalo nero. Prodotto In italia con materiali naturali e lavorazione artigianale.<br><br>Codice: SBTGDM411NR90A<br>Tipologia: Scarpe da ballo - Donna<br>Catalogo: Ballo Tango<br>Marca: Vitiello Dance Shoes<br>Tacco   : Tacco da donna alto 9cm a pianta strettissima<br></p></font><img title="Scarpa da donna per ballo tango in macramè nero" alt="Scarpa da donna per ballo tango in macramè nero" src="http://www.vitielloscarpedaballo.it/Foto/102_Scarpe-da-ballo-Donna/scarpa-da-donna-per-ballo-tango-in-macrame-nero_545_pg_109_MEDI_SBTGDM411NR90A_GAl1_400.jpg?source=ebay_sf"><img title="Scarpa da donna per ballo tango in macramè nero" alt="Scarpa da donna per ballo tango in macramè nero" src="http://www.vitielloscarpedaballo.it/Foto/102_Scarpe-da-ballo-Donna/scarpa-da-donna-per-ballo-tango-in-macrame-nero_546_pg_109_MEDI_SBTGDM411NR90A_GAl2_400.jpg?source=ebay_sf"><img title="Scarpa da donna per ballo tango in macramè nero" alt="Scarpa da donna per ballo tango in macramè nero" src="http://www.vitielloscarpedaballo.it/Foto/102_Scarpe-da-ballo-Donna/scarpa-da-donna-per-ballo-tango-in-macrame-nero_547_pg_109_MEDI_SBTGDM411NR90A_GAl3_400.jpg?source=ebay_sf"><img title="Scarpa da donna per ballo tango in macramè nero" alt="Scarpa da donna per ballo tango in macramè nero" src="http://www.vitielloscarpedaballo.it/Foto/102_Scarpe-da-ballo-Donna/scarpa-da-donna-per-ballo-tango-in-macrame-nero_548_pg_109_MEDI_SBTGDM411NR90A_GAL4_400.jpg?source=ebay_sf"><img title="Scarpa da donna per ballo tango in macramè nero" alt="Scarpa da donna per ballo tango in macramè nero" src="http://www.vitielloscarpedaballo.it/Foto/102_Scarpe-da-ballo-Donna/scarpa-da-donna-per-ballo-tango-in-macrame-nero_549_pg_109_MEDI_SBTGDM411NR90A_GAL5_400.jpg?source=ebay_sf"><img title="Scarpa da donna per ballo tango in macramè nero" alt="Scarpa da donna per ballo tango in macramè nero" src="http://www.vitielloscarpedaballo.it/Foto/102_Scarpe-da-ballo-Donna/scarpa-da-donna-per-ballo-tango-in-macrame-nero_550_pg_109_MEDI_SBTGDM411NR90A_GAL6_400.jpg?source=ebay_sf"><img title="Scarpa da donna per ballo tango in macramè nero" alt="Scarpa da donna per ballo tango in macramè nero" src="http://www.vitielloscarpedaballo.it/Foto/102_Scarpe-da-ballo-Donna/scarpa-da-donna-per-ballo-tango-in-macrame-nero_551_pg_109_MEDI_SBTGDM411NR90A_GAL7_400.jpg?source=ebay_sf"><img title="Scarpa da donna per ballo tango in macramè nero" alt="Scarpa da donna per ballo tango in macramè nero" src="http://www.vitielloscarpedaballo.it/Foto/102_Scarpe-da-ballo-Donna/scarpa-da-donna-per-ballo-tango-in-macrame-nero_552_pg_109_MEDI_SBTGDM411NR90A_GAL8_400.jpg?source=ebay_sf"><img title="Scarpa da donna per ballo tango in macramè nero" alt="Scarpa da donna per ballo tango in macramè nero" src="http://www.vitielloscarpedaballo.it/Foto/102_Scarpe-da-ballo-Donna/scarpa-da-donna-per-ballo-tango-in-macrame-nero_109_GRANDE_SBTGDM411NR90A_400.jpg?source=ebay_sf">]]></Description>
+			<DispatchTimeMax>2</DispatchTimeMax>
+			<HitCounter>BasicStyle</HitCounter>
+			<InventoryTrackingMethod>SKU</InventoryTrackingMethod>
+			<ItemSpecifics>
+				<NameValueList>
+					<Name>Catalogo</Name>
+					<Value>Ballo Tango</Value>
+				</NameValueList>
+				<NameValueList>
+					<Name>Codice</Name>
+					<Value>SBTGDM411NR90A</Value>
+				</NameValueList>
+				<NameValueList>
+					<Name>Tipologia</Name>
+					<Value>Donna</Value>
+				</NameValueList>
+				<NameValueList>
+					<Name>Brand</Name>
+					<Value>Vitiello Dance Shoes</Value>
+				</NameValueList>
+				<NameValueList>
+					<Name>Style</Name>
+					<Value>Donna</Value>
+				</NameValueList>
+			</ItemSpecifics>
+			<ListingDuration>Days_30</ListingDuration>
+			<ListingType>FixedPriceItem</ListingType>
+			<Location>00019 - Tivoli Terme (RM)</Location>
+			<PaymentMethods>PayPal</PaymentMethods>
+			<PayPalEmailAddress>pay-pal@vitiellocalzature.it</PayPalEmailAddress>
+			<PictureDetails>
+				<GalleryDuration>Lifetime</GalleryDuration>
+				<GalleryType>Gallery</GalleryType>
+				<PictureSource>Vendor</PictureSource>
+				<PictureURL>http://www.vitielloscarpedaballo.it/Amazon/Foto/SBTGDM411NR90A.main.jpg</PictureURL>
+			</PictureDetails>
+			<PostalCode>00019</PostalCode>
+			<PrimaryCategory>
+				<CategoryID>32547</CategoryID>
+			</PrimaryCategory>
+			<ProductListingDetails>
+				<BrandMPN>
+					<Brand>Vitiello Dance Shoes</Brand>
+					<MPN>SBTGDM411NR90A_size40</MPN>
+				</BrandMPN>
+			</ProductListingDetails>
+			<ReturnPolicy>
+				<Description>A seguito di un reso il Cliente riceverà un riaccredito
+					pari al solo importo dell'oggetto acquistato</Description>
+				<ReturnsAcceptedOption>ReturnsAccepted</ReturnsAcceptedOption>
+				<ReturnsWithinOption>Days_14</ReturnsWithinOption>
+				<ShippingCostPaidByOption>Buyer</ShippingCostPaidByOption>
+			</ReturnPolicy>
+			<ShippingDetails>
+				<PaymentInstructions></PaymentInstructions>
+				<ShippingServiceOptions>
+					<ShippingService>IT_ExpressCourier</ShippingService>
+					<ShippingServiceCost currencyID="EUR">4.90</ShippingServiceCost>
+					<ShippingServiceAdditionalCost
+						currencyID="EUR">0</ShippingServiceAdditionalCost>
+				</ShippingServiceOptions>
+				<ShippingType>Flat</ShippingType>
+			</ShippingDetails>
+			<Site>Italy</Site>
+			<SKU>SBTGDM411NR90A</SKU>
+			<Storefront>
+				<StoreCategoryID>2505265011</StoreCategoryID>
+			</Storefront>
+			<Title>Scarpa da donna per ballo tango in macramè nero</Title>
+			<Variations>
+				<VariationSpecificsSet>
+					<NameValueList>
+						<Name>Size</Name>
+						<Value>35</Value>
+						<Value>36</Value>
+						<Value>37</Value>
+						<Value>38</Value>
+						<Value>39</Value>
+						<Value>40</Value>
+
+					</NameValueList>
+				</VariationSpecificsSet>
+
+				<Variation>
+					<Quantity>1</Quantity>
+					<SKU>SBTGDM411NR90A_size35</SKU>
+					<StartPrice>90.85</StartPrice>
+					<VariationProductListingDetails>
+						<EAN>Non applicabile</EAN>
+					</VariationProductListingDetails>
+					<VariationSpecifics>
+						<NameValueList>
+							<Name>Size</Name>
+							<Value>35</Value>
+						</NameValueList>
+					</VariationSpecifics>
+				</Variation>
+				<Variation>
+					<Quantity>1</Quantity>
+					<SKU>SBTGDM411NR90A_size36</SKU>
+					<StartPrice>90.85</StartPrice>
+					<VariationProductListingDetails>
+						<EAN>Non applicabile</EAN>
+					</VariationProductListingDetails>
+					<VariationSpecifics>
+						<NameValueList>
+							<Name>Size</Name>
+							<Value>36</Value>
+						</NameValueList>
+					</VariationSpecifics>
+				</Variation>
+				<Variation>
+					<Quantity>1</Quantity>
+					<SKU>SBTGDM411NR90A_size37</SKU>
+					<StartPrice>90.85</StartPrice>
+					<VariationProductListingDetails>
+						<EAN>Non applicabile</EAN>
+					</VariationProductListingDetails>
+					<VariationSpecifics>
+						<NameValueList>
+							<Name>Size</Name>
+							<Value>37</Value>
+						</NameValueList>
+					</VariationSpecifics>
+				</Variation>
+				<Variation>
+					<Quantity>0</Quantity>
+					<SKU>SBTGDM411NR90A_size38</SKU>
+					<StartPrice>90.85</StartPrice>
+					<VariationProductListingDetails>
+						<EAN>Non applicabile</EAN>
+					</VariationProductListingDetails>
+					<VariationSpecifics>
+						<NameValueList>
+							<Name>Size</Name>
+							<Value>38</Value>
+						</NameValueList>
+					</VariationSpecifics>
+				</Variation>
+				<Variation>
+					<Quantity>2</Quantity>
+					<SKU>SBTGDM411NR90A_size39</SKU>
+					<StartPrice>90.85</StartPrice>
+					<VariationProductListingDetails>
+						<EAN>Non applicabile</EAN>
+					</VariationProductListingDetails>
+					<VariationSpecifics>
+						<NameValueList>
+							<Name>Size</Name>
+							<Value>39</Value>
+						</NameValueList>
+					</VariationSpecifics>
+				</Variation>
+				<Variation>
+					<Quantity>1</Quantity>
+					<SKU>SBTGDM411NR90A_size40</SKU>
+					<StartPrice>90.85</StartPrice>
+					<VariationProductListingDetails>
+						<EAN>Non applicabile</EAN>
+					</VariationProductListingDetails>
+					<VariationSpecifics>
+						<NameValueList>
+							<Name>Size</Name>
+							<Value>40</Value>
+						</NameValueList>
+					</VariationSpecifics>
+				</Variation>
+
+
+			</Variations>
+		</Item>
+	</ReviseFixedPriceItemRequest>
+
+
+
+	﻿
+</BulkDataExchangeRequests>

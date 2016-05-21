@@ -130,6 +130,7 @@ public class Puller implements Runnable {
 					case COMPLETED:
 						
 						if ( status != JobStatus.COMPLETED || !downloadFile ) {
+							dao.update(elaborazione);
 							break;
 						}
 						
@@ -180,7 +181,18 @@ public class Puller implements Runnable {
 					}
 
 				} catch (EbayConnectorException e) {
-					logger.error("Errore nell chiamata di un servizio ebay", e);
+					// In caso di errore tipizzato, riporta il solo messaggio
+					if ( e.getErrorData() != null ) {
+						logger.error("Errore nell chiamata di un servizio ebay: " + e.getMessage());
+					}
+					// In caso di altro errore non catturato, stampa lo stack trace
+					else {
+						logger.error("Errore nell chiamata di un servizio ebay", e);
+					}
+					// Aggiorna l'elaborazione salvando l'ultimo messaggio errore
+					elaborazione = dao.findById(elaborazione.getIdElaborazione());
+					elaborazione.setErroreJob(e.getMessage());
+					dao.update(elaborazione);
 				}
 
 			}
