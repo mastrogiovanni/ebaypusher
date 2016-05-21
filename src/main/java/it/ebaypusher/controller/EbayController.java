@@ -72,6 +72,15 @@ public interface EbayController {
 	 */
 	JobProfile getJobProfile(String jobId) throws EbayConnectorException;
 
+	/**
+	 * Effettua il parsing del file XML e ritorna il tipo di Job
+	 * 
+	 * @param file
+	 * @return
+	 * @throws EbayConnectorException
+	 */
+	String getJobTypeFromXML(File file) throws EbayConnectorException;
+
 }
 
 

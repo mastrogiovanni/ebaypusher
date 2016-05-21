@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,7 +18,6 @@ import it.ebaypusher.controller.EbayController;
 import it.ebaypusher.dao.Dao;
 import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
-import it.ebaypusher.utility.Utility;
 
 /**
  * Questo processo si occupa di sottomettere a ebay per la pubblicazione
@@ -68,10 +70,52 @@ public class Pusher implements Runnable {
 		}
 
 		logger.info("Pusher begin to work...");
+		
+		Map<String, Integer> jobs = new TreeMap<String, Integer>() {
+			private static final long serialVersionUID = 1L;
+			public Integer get(Object key) {
+				Integer value = super.get(key);
+				if ( value == null ) {
+					return 0;
+				}
+				return value;
+			};
+		};
+		for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
+			JobStatus status = JobStatus.valueOf(elaborazione.getJobStatus());
+			if (EnumSet.of(JobStatus.CREATED, JobStatus.IN_PROCESS, JobStatus.SCHEDULED).contains(status)) {
+				jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
+			}
+		}
 
 		for ( File file : files ) {
 
 			try {
+
+				// Cattura il tipo di job
+				String jobType = connector.getJobTypeFromXML(file);
+				
+				int count = jobs.get(jobType);
+
+				if ("AddFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.add", Integer.MAX_VALUE) ) {
+					logger.debug("Ci sono già " + count + " job di tipo " + jobType + ": rimando");
+					continue;
+				}
+
+				if ("EndFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.delete", Integer.MAX_VALUE) ) {
+					logger.debug("Ci sono già " + count + " job di tipo " + jobType + ": rimando");
+					continue;
+				}
+
+				if ("ReviseFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.modify", Integer.MAX_VALUE) ) {
+					logger.debug("Ci sono già " + count + " job di tipo " + jobType + ": rimando");
+					continue;
+				}
+
+				if ("RelistFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.relist", Integer.MAX_VALUE) ) {
+					logger.debug("Ci sono già " + count + " job di tipo " + jobType + ": rimando");
+					continue;
+				}
 
 				SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
 				elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
@@ -87,6 +131,8 @@ public class Pusher implements Runnable {
 				elaborazione.setFaseJob(Stato.IN_CORSO_DI_INVIO.toString());
 				elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
 				dao.insert(elaborazione);
+
+				jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
 
 			}
 			catch (Throwable t) {

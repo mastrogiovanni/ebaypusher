@@ -2,7 +2,9 @@ package it.ebaypusher;
 
 import java.io.File;
 import java.io.OutputStreamWriter;
+import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -43,7 +45,7 @@ public class App {
 		// [ batch | status <DateFrom> <DateTo> <JobId> <JobStatus> | abort <JobId> 		
 		
 	}
-
+	
 	public static void main(String[] args) throws Exception {
 
 		// Load log4j from file
