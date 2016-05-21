@@ -48,7 +48,7 @@ public class EbayControllerImpl implements EbayController {
 
 		// Cattura il tipo di job
 		String jobType = getJobTypeFromXML(new File(elaborazione.getPathFileInput()));
-		
+
 		// Effettua l'upload del job
 		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
 		CreateUploadJobResponse createUploadJobresponse = bdeActions.createUploadJob(jobType);

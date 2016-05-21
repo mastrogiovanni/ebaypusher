@@ -89,6 +89,8 @@ public class App {
 		
 		EbayController connector = new EbayControllerImpl();
 		logger.info("Ebay connection setup");
+		
+//		connector.downloadResponse("5827135321", new File("/home/michele/ebay/risposta.xml"));
 
 		if ( Configurazione.getConfiguration().get("perpetual") != null ) {
 			while ( true ) {
