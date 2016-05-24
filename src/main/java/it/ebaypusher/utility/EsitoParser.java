@@ -31,6 +31,7 @@ public class EsitoParser {
 
 	private static XPathExpression time;
 	private static XPathExpression ack;
+	private static XPathExpression itemID;
 	private static XPathExpression startTime;
 	private static XPathExpression endTime;
 	private static XPathExpression sku;
@@ -45,7 +46,9 @@ public class EsitoParser {
 			xPath = XPathFactory.newInstance().newXPath();
 
 			xpNode = xPath.compile("/BulkDataExchangeResponses/*");
+			
 			time = xPath.compile("Timestamp");
+			itemID = xPath.compile("ItemID");
 			ack = xPath.compile("Ack");
 			startTime = xPath.compile("StartTime");
 			endTime = xPath.compile("EndTime");
@@ -111,6 +114,7 @@ public class EsitoParser {
 
 		esito.setAck((String) ack.evaluate(item, XPathConstants.STRING));
 		esito.setSku((String) sku.evaluate(item, XPathConstants.STRING));
+		esito.setItemId((String) itemID.evaluate(item, XPathConstants.STRING));
 
 		NodeList errors = (NodeList) segnalazioni.evaluate(item, XPathConstants.NODESET);
 
@@ -122,9 +126,10 @@ public class EsitoParser {
 			String error = (String) errorCode.evaluate(errors.item(j), XPathConstants.STRING);
 
 			if ( builder.length() > 0 ) {
-				builder.append(", ");
+				builder.append("|");
 			}
-			builder.append(error + ":" + msg);
+			
+			builder.append(error + "#" + msg);
 
 		}
 
