@@ -73,6 +73,9 @@ public class SnzhElaborazioniebay implements Serializable {
 	@Lob
 	@Column(name = "PATH_FILE_INPUT")
 	private String pathFileInput;
+	
+	@Column(name = "ESITO_PARSED")
+	private boolean esitoParsed;
 
 	public SnzhElaborazioniebay() {
 	}
@@ -187,6 +190,21 @@ public class SnzhElaborazioniebay implements Serializable {
 
 	public void setPathFileInput(String pathFileInput) {
 		this.pathFileInput = pathFileInput;
+	}
+
+	public boolean isEsitoParsed() {
+		return esitoParsed;
+	}
+
+	public void setEsitoParsed(boolean esitoParsed) {
+		this.esitoParsed = esitoParsed;
+	}
+
+	@Override
+	public String toString() {
+		return "SnzhElaborazioniebay [idElaborazione=" + idElaborazione + ", dataElaborazione=" + dataElaborazione + ", dataInserimento=" + dataInserimento + ", erroreJob=" + erroreJob + ", faseJob="
+				+ faseJob + ", fileReferenceId=" + fileReferenceId + ", filename=" + filename + ", jobId=" + jobId + ", jobPercCompl=" + jobPercCompl + ", jobStatus=" + jobStatus + ", jobType="
+				+ jobType + ", numTentativi=" + numTentativi + ", pathFileEsito=" + pathFileEsito + ", pathFileInput=" + pathFileInput + ", esitoParsed=" + esitoParsed + "]";
 	}
 
 }

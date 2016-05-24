@@ -39,7 +39,28 @@ public class Dao {
 		manager.merge(elaborazione);
 		commit();
 	}
+
+	/**
+	 * Crea una elaborazione per quel fileName.
+	 * @param fileName
+	 * @return
+	 */
+	public void insert(List<SnzhEsitiebay> esiti) {
+		begin();
+		for ( SnzhEsitiebay esito : esiti ) {
+			manager.persist(esito);
+		}
+		commit();
+	}
 	
+	public void updateParsed(SnzhElaborazioniebay elaborazione, boolean parsed) {
+		begin();
+		elaborazione = manager.find(SnzhElaborazioniebay.class, elaborazione.getIdElaborazione());
+		elaborazione.setEsitoParsed(parsed);
+		manager.merge(elaborazione);
+		commit();
+	}
+
 	/**
 	 * Crea una elaborazione per quel fileName.
 	 * @param fileName

@@ -29,7 +29,7 @@
 			<artifactId>BulkDataExchangeService</artifactId>
 			<version>1.0</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/lib/FileTransferService_BulkDataExchangeService.jar</systemPath>
+			<systemPath>${project.basedir}/lib/FileTransferService_BulkDataExchangeService.jar</systemPath>
 		</dependency>
 
 		<dependency>

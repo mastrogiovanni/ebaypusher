@@ -14,6 +14,7 @@ create table SNZH_ELABORAZIONIEBAY
    DATA_ELABORAZIONE datetime,
    NUM_TENTATIVI int not null default 0,
    ERRORE_JOB       text,
+  ESITO_PARSED int(11) DEFAULT '0',
    primary key (ID_ELABORAZIONE)
 );
 
@@ -26,3 +27,17 @@ create index SNZH_INDICE1 on SNZH_ELABORAZIONIEBAY
    FILE_REFERENCE_ID
 );
 
+create table SNZH_ESITIEBAY
+(
+   ID_ESITO  			bigint not null auto_increment,
+   FK_ID_ELABORAZIONE	bigint not null,
+   RESPONSE_TYPE        varchar(50) not null,
+   DATA_ESITO			datetime not null,
+   ACK					varchar(20),
+   SKU					varchar(20),
+   ITEM_ID				varchar(20),
+   START_TIME			datetime,
+   END_TIME				datetime,
+   ERRORS				text
+   primary key (ID_ESITO)
+);
