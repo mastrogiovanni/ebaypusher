@@ -162,9 +162,11 @@ public class App {
 		Puller puller = new Puller(dao, connector);
 		puller.run();
 
-		Parser parser = new Parser(dao);
-		parser.run();
-
+		if ( Configurazione.getText("EseguiParsingXML") != null ) {
+			Parser parser = new Parser(dao);
+			parser.run();
+		}
+		
 	}
 
 	private static void showStatus(Date from, Date to) throws Exception {

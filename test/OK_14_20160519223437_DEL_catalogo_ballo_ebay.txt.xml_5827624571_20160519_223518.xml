@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BulkDataExchangeResponses xmlns="urn:ebay:apis:eBLBaseComponents">
+<EndFixedPriceItemResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+   <Timestamp>2016-05-19T20:36:07.929Z</Timestamp>
+   <Ack>Success</Ack>
+   <Version>965</Version>
+   <Build>E965_UNI_API5_17966003_R1</Build>
+   <EndTime>2016-05-19T20:36:07.000Z</EndTime>
+   <SKU>SBTGDMARCNR100</SKU>
+  </EndFixedPriceItemResponse>
+</BulkDataExchangeResponses>

@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BulkDataExchangeResponses xmlns="urn:ebay:apis:eBLBaseComponents">
+<ReviseFixedPriceItemResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+   <Timestamp>2016-05-19T20:06:25.015Z</Timestamp>
+   <Ack>Warning</Ack>
+   <Errors>
+    <ShortMessage>Le varianti con quantità pari a &apos;0&apos; verranno rimosse.</ShortMessage>
+    <LongMessage>Le varianti con quantità pari a &apos;0&apos; verranno rimosse.</LongMessage>
+    <ErrorCode>21916620</ErrorCode>
+    <SeverityCode>Warning</SeverityCode>
+    <ErrorParameters ParamID="0">
+     <Value>SBTGDM411NR90A_size38</Value>
+    </ErrorParameters>
+    <ErrorClassification>RequestError</ErrorClassification>
+   </Errors>
+   <Version>965</Version>
+   <Build>E965_UNI_API5_17966003_R1</Build>
+   <ItemID>172212835036</ItemID>
+   <SKU>SBTGDM411NR90A</SKU>
+   <StartTime>2016-05-19T20:00:04.000Z</StartTime>
+   <EndTime>2016-06-18T20:00:04.000Z</EndTime>
+   <Fees>
+    <Fee>
+     <Name>AuctionLengthFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BoldFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BuyItNowFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>CategoryFeaturedFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>FeaturedFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>GalleryPlusFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>FeaturedGalleryFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>FixedPriceDurationFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>GalleryFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>GiftIconFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>HighLightFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>InsertionFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>InternationalInsertionFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ListingDesignerFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ListingFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>PhotoDisplayFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>PhotoFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ReserveFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>SchedulingFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>SubtitleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BorderFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ProPackBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BasicUpgradePackBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ValuePackBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>PrivateListingFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ProPackPlusBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>MotorsGermanySearchFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+   </Fees>
+  </ReviseFixedPriceItemResponse>
+<ReviseFixedPriceItemResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+   <Timestamp>2016-05-19T20:06:27.364Z</Timestamp>
+   <Ack>Warning</Ack>
+   <Errors>
+    <ShortMessage>Le varianti con quantità pari a &apos;0&apos; verranno rimosse.</ShortMessage>
+    <LongMessage>Le varianti con quantità pari a &apos;0&apos; verranno rimosse.</LongMessage>
+    <ErrorCode>21916620</ErrorCode>
+    <SeverityCode>Warning</SeverityCode>
+    <ErrorParameters ParamID="0">
+     <Value>SBTGDMARCNR100_size36</Value>
+    </ErrorParameters>
+    <ErrorClassification>RequestError</ErrorClassification>
+   </Errors>
+   <Errors>
+    <ShortMessage>Le varianti con quantità pari a &apos;0&apos; verranno rimosse.</ShortMessage>
+    <LongMessage>Le varianti con quantità pari a &apos;0&apos; verranno rimosse.</LongMessage>
+    <ErrorCode>21916620</ErrorCode>
+    <SeverityCode>Warning</SeverityCode>
+    <ErrorParameters ParamID="0">
+     <Value>SBTGDMARCNR100_size40</Value>
+    </ErrorParameters>
+    <ErrorClassification>RequestError</ErrorClassification>
+   </Errors>
+   <Version>965</Version>
+   <Build>E965_UNI_API5_17966003_R1</Build>
+   <ItemID>172212835163</ItemID>
+   <SKU>SBTGDMARCNR100</SKU>
+   <StartTime>2016-05-19T20:00:06.000Z</StartTime>
+   <EndTime>2016-06-18T20:00:06.000Z</EndTime>
+   <Fees>
+    <Fee>
+     <Name>AuctionLengthFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BoldFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BuyItNowFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>CategoryFeaturedFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>FeaturedFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>GalleryPlusFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>FeaturedGalleryFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>FixedPriceDurationFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>GalleryFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>GiftIconFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>HighLightFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>InsertionFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>InternationalInsertionFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ListingDesignerFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ListingFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>PhotoDisplayFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>PhotoFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ReserveFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>SchedulingFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>SubtitleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BorderFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ProPackBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BasicUpgradePackBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ValuePackBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>PrivateListingFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ProPackPlusBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>MotorsGermanySearchFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+   </Fees>
+  </ReviseFixedPriceItemResponse>
+<ReviseFixedPriceItemResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+   <Timestamp>2016-05-19T20:06:29.780Z</Timestamp>
+   <Ack>Success</Ack>
+   <Version>965</Version>
+   <Build>E965_UNI_API5_17966003_R1</Build>
+   <ItemID>172212835198</ItemID>
+   <SKU>SBTGDHELGNR100</SKU>
+   <StartTime>2016-05-19T20:00:09.000Z</StartTime>
+   <EndTime>2016-06-18T20:00:09.000Z</EndTime>
+   <Fees>
+    <Fee>
+     <Name>AuctionLengthFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BoldFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BuyItNowFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>CategoryFeaturedFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>FeaturedFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>GalleryPlusFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>FeaturedGalleryFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>FixedPriceDurationFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>GalleryFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>GiftIconFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>HighLightFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>InsertionFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>InternationalInsertionFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ListingDesignerFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ListingFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>PhotoDisplayFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>PhotoFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ReserveFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>SchedulingFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>SubtitleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BorderFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ProPackBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>BasicUpgradePackBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ValuePackBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>PrivateListingFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>ProPackPlusBundleFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+    <Fee>
+     <Name>MotorsGermanySearchFee</Name>
+     <Fee currencyID="EUR">0.0</Fee>
+    </Fee>
+   </Fees>
+  </ReviseFixedPriceItemResponse>
+</BulkDataExchangeResponses>
