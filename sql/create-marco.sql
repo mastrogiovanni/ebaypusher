@@ -38,6 +38,6 @@ create table SNZH_ESITIEBAY
    ITEM_ID				varchar(20),
    START_TIME			datetime,
    END_TIME				datetime,
-   ERRORS				text
+   SEGNALAZIONI			text,
    primary key (ID_ESITO)
 );

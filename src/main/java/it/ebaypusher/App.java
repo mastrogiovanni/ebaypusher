@@ -123,7 +123,10 @@ public class App {
 		EbayController connector = new EbayControllerImpl();
 		logger.info("Ebay connection setup");
 		
-//		connector.downloadResponse("5827135321", new File("/home/michele/ebay/risposta.xml"));
+		if ( Configurazione.getConfiguration().getProperty("killall") != null ) {
+			logger.info("Kill all suspended Ebay processes");
+			connector.killAll();
+		}
 
 		if ( Configurazione.getConfiguration().get("perpetual") != null ) {
 			while ( true ) {
@@ -151,10 +154,6 @@ public class App {
 	}
 
 	private static void workCycle(Dao dao, EbayController connector) throws FactoryConfigurationError, Exception, EbayConnectorException, ClassNotFoundException {
-				
-		if ( Configurazione.getConfiguration().getProperty("killall") != null ) {
-			connector.killAll();
-		}
 
 		Pusher pusher = new Pusher(dao, connector);
 		pusher.run();

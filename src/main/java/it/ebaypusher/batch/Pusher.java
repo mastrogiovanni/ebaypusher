@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import com.ebay.marketplace.services.JobStatus;
 
 import it.ebaypusher.constants.Stato;
+import it.ebaypusher.controller.EbayConnectorException;
 import it.ebaypusher.controller.EbayController;
 import it.ebaypusher.dao.Dao;
 import it.ebaypusher.dao.SnzhElaborazioniebay;
@@ -81,12 +82,15 @@ public class Pusher implements Runnable {
 				return value;
 			};
 		};
+		
 		for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
 			JobStatus status = JobStatus.valueOf(elaborazione.getJobStatus());
 			if (EnumSet.of(JobStatus.CREATED, JobStatus.IN_PROCESS, JobStatus.SCHEDULED).contains(status)) {
 				jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
 			}
 		}
+		
+		System.out.println(jobs);
 
 		for ( File file : files ) {
 
@@ -135,10 +139,11 @@ public class Pusher implements Runnable {
 				jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
 
 			}
+			catch (EbayConnectorException e) {
+				logger.error("Errore nella sottomissione del file: " + e.getMessage());
+			}
 			catch (Throwable t) {
-
 				logger.error("Errore di upload batch del file: " + file, t);
-
 			}
 
 		}
