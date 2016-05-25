@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import com.ebay.marketplace.services.AbortJobResponse;
 import com.ebay.marketplace.services.AckValue;
 import com.ebay.marketplace.services.BaseServiceResponse;
+import com.ebay.marketplace.services.BulkDataExchangeService;
 import com.ebay.marketplace.services.CreateUploadJobResponse;
 import com.ebay.marketplace.services.DownloadFileResponse;
 import com.ebay.marketplace.services.ErrorData;
@@ -42,6 +43,19 @@ import it.ebaypusher.utility.Utility;
 public class EbayControllerImpl implements EbayController {
 
 	private Log logger = LogFactory.getLog(EbayController.class);
+	
+	@Override
+	public boolean test() {
+		try {
+			new BulkDataExchangeService();
+			logger.info("Connection to ebay setup");
+			return true;
+		}
+		catch (Throwable t) {
+			logger.error("Ebay is not accessible");
+		}
+		return false;
+	}
 
 	@Override
 	public void create(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
@@ -152,7 +166,12 @@ public class EbayControllerImpl implements EbayController {
 
 		if (job.getJobStatus().equals(JobStatus.FAILED) || job.getJobStatus().equals(JobStatus.ABORTED)) {
 			logger.error("JobId=" + job.getJobId() + ": " + "Job Type " + job.getJobType() + " : JobStatus= " + job.getJobStatus());
-			elaborazione.setFaseJob(Stato.TERMINATO_CON_ERRORE.toString());
+			if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3)) {
+				elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
+			}
+			else {
+				elaborazione.setFaseJob(Stato.TERMINATO_CON_ERRORE.toString());
+			}
 			elaborazione.setDataElaborazione(new Timestamp(System.currentTimeMillis()));
 			return;
 		}
@@ -173,8 +192,8 @@ public class EbayControllerImpl implements EbayController {
 				}
 			}
 		}
-		catch (Exception e) {
-			throw new EbayConnectorException("Errore nel killAll", e);
+		catch (Throwable e) {
+			throw new EbayConnectorException("Errore nel killAll: " + e.getMessage());
 		}
 	}
 	
@@ -305,8 +324,6 @@ public class EbayControllerImpl implements EbayController {
 			logger.error("Il tipo di job del file non è valido");
 			throw new EbayConnectorException("Il tipo di job del file non è valido");
 		}
-
-		logger.info("Il tipo di job del file '" + file.getName() + "' è: " + jobType);
 		return jobType;
 	}
 

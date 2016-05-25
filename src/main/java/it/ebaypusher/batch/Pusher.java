@@ -65,13 +65,6 @@ public class Pusher implements Runnable {
 
 		});
 
-		if ( files.length == 0 ) {
-			logger.info("No file in output: pusher terminated");
-			return;			
-		}
-
-		logger.info("Pusher begin to work...");
-		
 		Map<String, Integer> jobs = new TreeMap<String, Integer>() {
 			private static final long serialVersionUID = 1L;
 			public Integer get(Object key) {
@@ -89,44 +82,78 @@ public class Pusher implements Runnable {
 				jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
 			}
 		}
-		
-		System.out.println(jobs);
 
-		for ( File file : files ) {
+		if ( files.length > 0 ) {
+
+			for ( File file : files ) {
+
+				try {
+
+					// Cattura il tipo di job
+					String jobType = connector.getJobTypeFromXML(file);
+					logger.info("Il tipo di job del file '" + file.getName() + "' è: " + jobType);
+
+					if ( tooManyJobs(jobType, jobs) ) {
+						int count = jobs.get(jobType);
+						logger.info("Ci sono già " + count + " job di tipo " + jobType + ": rimando sottomissione");
+						continue;
+					}
+
+					SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
+					elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
+
+					elaborazione.setFilename(file.getName());
+					elaborazione.setPathFileInput(file.getAbsolutePath());
+					elaborazione.setNumTentativi(0);
+
+					// Crea un batch di inserimento ebay
+					connector.create(elaborazione);
+
+					elaborazione.setJobStatus(JobStatus.CREATED.toString());
+					elaborazione.setFaseJob(Stato.IN_CORSO_DI_INVIO.toString());
+					elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
+					dao.insert(elaborazione);
+
+					jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
+					logger.info("Job sottomesso con successo: '" + file.getName() + "':" + elaborazione.getIdElaborazione());
+
+				}
+				catch (Throwable t) {
+					logger.error("Errore nella sottomissione del file: " + file + ";" + t.getMessage());
+				}
+
+			}
+		}
+		else {
+			logger.info("No file in output");
+		}
+
+		// Prova a rinviare alcuni file
+		for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
+			
+			if (!Stato.TERMINATO_CON_ERRORE.toString().equals(elaborazione.getFaseJob())) {
+				continue;
+			}
+			
+			if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3)) {
+				elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
+				dao.update(elaborazione);
+				continue;
+			}
+			
+			if ( tooManyJobs(elaborazione.getJobType(), jobs) ) {
+				int count = jobs.get(elaborazione.getJobType());
+				logger.debug("Ci sono già " + count + " job di tipo " + elaborazione.getJobType() + ": rimando sottomissione");
+				continue;
+			}
 
 			try {
-
-				// Cattura il tipo di job
-				String jobType = connector.getJobTypeFromXML(file);
 				
-				int count = jobs.get(jobType);
+				logger.debug("Retry of elaborazione: " + elaborazione.getIdElaborazione());
+				dao.detach(elaborazione);
 
-				if ("AddFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.add", Integer.MAX_VALUE) ) {
-					logger.debug("Ci sono già " + count + " job di tipo " + jobType + ": rimando");
-					continue;
-				}
-
-				if ("EndFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.delete", Integer.MAX_VALUE) ) {
-					logger.debug("Ci sono già " + count + " job di tipo " + jobType + ": rimando");
-					continue;
-				}
-
-				if ("ReviseFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.modify", Integer.MAX_VALUE) ) {
-					logger.debug("Ci sono già " + count + " job di tipo " + jobType + ": rimando");
-					continue;
-				}
-
-				if ("RelistFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.relist", Integer.MAX_VALUE) ) {
-					logger.debug("Ci sono già " + count + " job di tipo " + jobType + ": rimando");
-					continue;
-				}
-
-				SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
 				elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
-
-				elaborazione.setFilename(file.getName());
-				elaborazione.setPathFileInput(file.getAbsolutePath());
-				elaborazione.setNumTentativi(0);
+				elaborazione.setNumTentativi(elaborazione.getNumTentativi() + 1);
 
 				// Crea un batch di inserimento ebay
 				connector.create(elaborazione);
@@ -134,21 +161,44 @@ public class Pusher implements Runnable {
 				elaborazione.setJobStatus(JobStatus.CREATED.toString());
 				elaborazione.setFaseJob(Stato.IN_CORSO_DI_INVIO.toString());
 				elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
-				dao.insert(elaborazione);
+				dao.update(elaborazione);
 
 				jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
 
 			}
 			catch (EbayConnectorException e) {
-				logger.error("Errore nella sottomissione del file: " + e.getMessage());
+				logger.error("Errore nella ri-sottomissione del file: " + e.getMessage());
 			}
 			catch (Throwable t) {
-				logger.error("Errore di upload batch del file: " + file, t);
+				logger.error("Errore di ri-sottomissione della elaborazione: " + elaborazione.getIdElaborazione(), t);
 			}
-
 		}
 
 		logger.info("Pusher terminated to work");
+
+	}
+	
+	private boolean tooManyJobs(String jobType, Map<String, Integer> jobs) {
+
+		int count = jobs.get(jobType);
+
+		if ("AddFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.add", Integer.MAX_VALUE) ) {
+			return true;
+		}
+
+		if ("EndFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.delete", Integer.MAX_VALUE) ) {
+			return true;
+		}
+
+		if ("ReviseFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.modify", Integer.MAX_VALUE) ) {
+			return true;
+		}
+
+		if ("RelistFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.relist", Integer.MAX_VALUE) ) {
+			return true;
+		}
+		
+		return false;
 
 	}
 

@@ -2,6 +2,7 @@ package it.ebaypusher.batch;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,44 +42,30 @@ public class Puller implements Runnable {
 	@Override
 	public void run() {
 
+		// Indica che il ciclo deve essere interrotto.
+		// Il ciclo è non viene interrotto se ci sono job da avviare 
+		// o file da inviare e EBay
 		boolean shouldInterrupt = false;
+		
+		int retry = 0;
 
-		while ( !Thread.interrupted() && ! shouldInterrupt ) {
+		logger.info("Puller begin to work...");
+		
+		while ( !Thread.interrupted() && ! shouldInterrupt && retry <= Configurazione.getIntValue("retry.puller", 15)) {
 
 			shouldInterrupt = true;
 
-			logger.info("Puller begin to work...");
-
 			for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
 
-				boolean downloadFile = false;
-				
+				dao.detach(elaborazione);
+
 				try {
 					
-					JobStatus currentStatus = JobStatus.valueOf(elaborazione.getJobStatus());
-					JobStatus status = currentStatus;
-					switch (currentStatus) {
-					case ABORTED:
-					case FAILED:
-						break;
-
-					case COMPLETED:
-						if (elaborazione.getJobPercCompl() == 100.0) {
-							break;
-						}
-
-					default:
-						JobProfile jobProfile = connector.getJobProfile(elaborazione.getJobId());
-						status = jobProfile.getJobStatus();
-						elaborazione.setJobStatus(status.toString());
-						if ( jobProfile.getPercentComplete() != null ) {
-							elaborazione.setJobPercCompl((int) Math.round(jobProfile.getPercentComplete()));
-							downloadFile = true;
-						}
-						logger.info("Job " + elaborazione.getJobId() + "(" + elaborazione.getFilename() + ") status: " + status.toString());
+					JobStatus oldStatus = JobStatus.valueOf(elaborazione.getJobStatus());
 					
-					}
-
+					// Aggiorna lo stato attuale del job
+					JobStatus status = updateElaborazioneStatus(elaborazione);
+					
 					switch (status) {
 
 					// Batch ebay creato
@@ -95,15 +82,20 @@ public class Puller implements Runnable {
 							// Il file deve essere trasferito su ebay
 							connector.upload(elaborazione);
 							
-							// Sposta il file da OUTPUT a SENT
-							if (!Utility.getInputFile(elaborazione).renameTo(Utility.getSentFile(elaborazione))) {
-								logger.error("Non posso spostare il file nella cartella SENT: " + elaborazione.getFilename());
-							}
-							else {
-								logger.info("File di input spostato in SENT: " + Utility.getSentFile(elaborazione));
+							// Solo la prima volta sposta il file: se è un tentativo di re-invio
+							// non è necessario spostarlo
+							if ( elaborazione.getNumTentativi() == 0 ) {
+								
+								// Sposta il file da OUTPUT a SENT
+								if (!Utility.getInputFile(elaborazione).renameTo(Utility.getSentFile(elaborazione))) {
+									logger.error("Non posso spostare il file nella cartella SENT: " + elaborazione.getFilename());
+								}
+								else {
+									logger.info("File di input spostato in SENT: " + Utility.getSentFile(elaborazione));
+								}
+								elaborazione.setPathFileInput(Utility.getSentFile(elaborazione).getAbsolutePath());
 							}
 
-							elaborazione.setPathFileInput(Utility.getSentFile(elaborazione).getAbsolutePath());
 							elaborazione.setFaseJob(Stato.INVIATO_EBAY.toString());
 							dao.update(elaborazione);
 
@@ -117,19 +109,22 @@ public class Puller implements Runnable {
 							dao.update(elaborazione);
 							
 						}
-						
 						break;
 
-					// Deve essere avviata la schedulazione
+					// Accodato il lavoro ma ancora non avviato
 					case SCHEDULED:
-
-						// Questo
+						dao.update(elaborazione);
 						shouldInterrupt = false;
+						break;
 
 					case IN_PROCESS:
+						dao.update(elaborazione);
+						break;
+						
 					case COMPLETED:
 						
-						if ( status != JobStatus.COMPLETED || !downloadFile ) {
+						// Job completed but not 100%
+						if ( ! canDownloadFile(elaborazione) ) {
 							dao.update(elaborazione);
 							break;
 						}
@@ -137,50 +132,59 @@ public class Puller implements Runnable {
 						// Richiede aggiornamento di stato a Ebay
 						connector.updateProgressAndStatus(elaborazione);
 
-						if (JobStatus.COMPLETED.toString().equals(elaborazione.getJobStatus()) 
-								&& elaborazione.getJobPercCompl() == 100.0) {
-							
+						if (JobStatus.COMPLETED.toString().equals(elaborazione.getJobStatus()) && elaborazione.getJobPercCompl() == 100.0) {
+
+							// Salva l'output
 							if ( connector.saveResponseFile(elaborazione)) {
-
 								dao.update(elaborazione);
-
+								break;
 							}
 							
+							// Non aggiorna lo stato se non è stato possibile scaricare il file
+							break;
 						}
-						else {
 
-							dao.update(elaborazione);
+						// Aggiorna lo stato dell'elaborazione
+						dao.update(elaborazione);
 
-						}
 						break;
 						
 					case ABORTED:
 					case FAILED:
-
-						if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3)) {
-
-							new File(elaborazione.getPathFileInput()).renameTo(Utility.getErrorFile(elaborazione));
-							
-							elaborazione.setPathFileEsito(Utility.getErrorFile(elaborazione).getAbsolutePath());
-							elaborazione.setErroreJob(status.toString());
-							elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
-							dao.update(elaborazione);
-							continue;
-						}
-
-						// Crea un batch di inserimento ebay
-						connector.create(elaborazione);
 						
-						elaborazione.setNumTentativi(elaborazione.getNumTentativi() + 1);
-						elaborazione.setJobStatus(JobStatus.CREATED.toString());
-						elaborazione.setFaseJob(Stato.IN_CORSO_DI_INVIO.toString());
-						elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
-						elaborazione.setDataElaborazione(null);
+						// Elaborazione terminata in passato
+						if ( oldStatus.equals(status)) {
+							if ( Stato.TERMINATO_CON_SUCCESSO.toString().equals(elaborazione.getFaseJob())) {
+								break;
+							}
+							if ( Stato.TERMINATO_CON_ERRORE.toString().equals(elaborazione.getFaseJob())) {
+								break;
+							}
+							if ( Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString().equals(elaborazione.getFaseJob())) {
+								break;
+							}
+						}
+												
+						// Richiede aggiornamento di stato a Ebay
+						connector.updateProgressAndStatus(elaborazione);
+						
+						try {
+							// Tenta il salvataggio della response (se esiste)
+							connector.saveResponseFile(elaborazione);
+						}
+						catch (Throwable t) {
+							logger.error("Impossibile salvare l'output per l'elaborazione: " + elaborazione.getIdElaborazione() + ": " + t.getMessage());
+						}							
+						
+						// Aggiorna l'elaborazione
 						dao.update(elaborazione);
 						
+						break;
+												
 					}
 
 				} catch (EbayConnectorException e) {
+
 					// In caso di errore tipizzato, riporta il solo messaggio
 					if ( e.getErrorData() != null ) {
 						logger.error("Errore nell chiamata di un servizio ebay: " + e.getMessage());
@@ -189,12 +193,18 @@ public class Puller implements Runnable {
 					else {
 						logger.error("Errore nell chiamata di un servizio ebay", e);
 					}
+					
 					// Aggiorna l'elaborazione salvando l'ultimo messaggio errore
 					elaborazione = dao.findById(elaborazione.getIdElaborazione());
 					elaborazione.setErroreJob(e.getMessage());
 					dao.update(elaborazione);
+					
 				}
 
+			}
+			
+			if ( !shouldInterrupt ) {
+				retry ++;
 			}
 
 			try {
@@ -208,6 +218,64 @@ public class Puller implements Runnable {
 
 		logger.info("Puller terminated to work");
 
+	}
+
+	/**
+	 * Backup della procedura di download esito per le volte che il download non è andato a buon fine
+	 * 
+	 * @param elaborazione
+	 * @return
+	 * @throws EbayConnectorException
+	 */
+	private boolean canDownloadFile(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
+		
+		if (!JobStatus.COMPLETED.toString().equals(elaborazione.getJobStatus()) || elaborazione.getJobPercCompl() != 100.0) {
+			return false;
+		}
+
+		if ( elaborazione.getPathFileEsito() == null ) {
+			return true;
+		}
+		
+		if (!new File(elaborazione.getPathFileEsito()).exists()) {
+			return true;
+		}
+
+		JobProfile jobProfile = connector.getJobProfile(elaborazione.getJobId());
+
+		return ( jobProfile.getFileReferenceId() != null );
+
+	}
+
+	/**
+	 * Aggiorna lo stato attuale del job: non considera job terminati 
+	 * a meno che non abbiano una percentuale di completamento
+	 * minore di 100%
+	 * 
+	 * @param elaborazione
+	 * @param downloadFile
+	 * @return
+	 * @throws EbayConnectorException
+	 */
+	private JobStatus updateElaborazioneStatus(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
+		
+		JobStatus currentStatus = JobStatus.valueOf(elaborazione.getJobStatus());
+
+		if ( Utility.isTerminated(elaborazione)) {
+			return currentStatus;
+		}
+		
+		// Aggiorna lo stato attuale dell'elaborazione
+		JobProfile jobProfile = connector.getJobProfile(elaborazione.getJobId());
+		currentStatus = jobProfile.getJobStatus();
+		elaborazione.setJobStatus(currentStatus.toString());
+		if ( jobProfile.getPercentComplete() != null ) {
+			elaborazione.setJobPercCompl((int) Math.round(jobProfile.getPercentComplete()));
+		}
+		
+		logger.info("Job " + elaborazione.getJobId() + "(" + elaborazione.getFilename() + ") status: " + currentStatus.toString());
+		
+		return currentStatus;
 	}	
 
 

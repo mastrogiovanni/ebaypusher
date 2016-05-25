@@ -60,9 +60,8 @@ public class CreateLMSParser {
 		logger.info(" CreateLMSParser.parse() ==> " + file.getAbsolutePath().toString());
 		try {
 			saxParser.parse(file, this.handler);
-
 		} catch (Throwable t) {
-			t.printStackTrace();
+			logger.warning(t.getMessage());
 			return false;
 		}
 		return true;

@@ -33,7 +33,13 @@ public class Dao {
 //	private void rollback() {
 //		tx.get().rollback();
 //	}
-	
+
+	public void detach(SnzhElaborazioniebay elaborazione) {
+		begin();
+		manager.detach(elaborazione);
+		commit();
+	}
+
 	public void update(SnzhElaborazioniebay elaborazione) {
 		begin();
 		manager.merge(elaborazione);

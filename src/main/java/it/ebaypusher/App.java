@@ -119,7 +119,7 @@ public class App {
 		EntityManager manager = factory.createEntityManager();
 		Dao dao = new Dao(manager);
 		logger.info("Database connected");
-		
+				
 		EbayController connector = new EbayControllerImpl();
 		logger.info("Ebay connection setup");
 		
@@ -140,6 +140,7 @@ public class App {
 	}
 
 	private static void setupSystem() throws FactoryConfigurationError {
+		
 		// Load log4j from file
 		LogManager.resetConfiguration();
 		DOMConfigurator.configure(new File("conf", "log4j.xml").getPath());
@@ -155,15 +156,26 @@ public class App {
 
 	private static void workCycle(Dao dao, EbayController connector) throws FactoryConfigurationError, Exception, EbayConnectorException, ClassNotFoundException {
 
-		Pusher pusher = new Pusher(dao, connector);
-		pusher.run();
-
-		Puller puller = new Puller(dao, connector);
-		puller.run();
-
-		if ( Configurazione.getText("EseguiParsingXML") != null ) {
-			Parser parser = new Parser(dao);
-			parser.run();
+		if (!connector.test()) {
+			return;
+		}
+		
+		try {
+		
+			Pusher pusher = new Pusher(dao, connector);
+			pusher.run();
+	
+			Puller puller = new Puller(dao, connector);
+			puller.run();
+	
+			if ( Configurazione.getText("EseguiParsingXML") != null ) {
+				Parser parser = new Parser(dao);
+				parser.run();
+			}
+			
+		}
+		catch (Throwable t) {
+			logger.error("Batch interrotto a causa di un errore di runtime: " + t.getMessage());
 		}
 		
 	}

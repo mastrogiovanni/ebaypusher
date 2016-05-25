@@ -5,9 +5,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.ebay.marketplace.services.JobStatus;
+
 import it.ebaypusher.dao.SnzhElaborazioniebay;
 
 public class Utility {
+	
+	public static boolean isTerminated(SnzhElaborazioniebay elaborazione) {
+		JobStatus currentStatus = JobStatus.valueOf(elaborazione.getJobStatus());
+		switch (currentStatus) {
+			case ABORTED:
+			case FAILED:
+				return true;
+			case COMPLETED:
+				return (elaborazione.getJobPercCompl() == 100.0);
+			default:
+				break;
+		}
+		return false;
+	}
 	
 	public static void copy(InputStream in, OutputStream out) throws IOException {
 		byte[] buffer = new byte[1024];

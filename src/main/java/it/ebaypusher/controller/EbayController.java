@@ -7,7 +7,12 @@ import com.ebay.marketplace.services.JobProfile;
 import it.ebaypusher.dao.SnzhElaborazioniebay;
 
 public interface EbayController {
-	
+
+	/**
+	 * Test connection to Ebay
+	 */
+	boolean test();
+
 	/**
 	 * Crea un job di import
 	 * 
