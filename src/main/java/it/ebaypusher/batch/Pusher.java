@@ -131,6 +131,9 @@ public class Pusher implements Runnable {
 		// Prova a rinviare alcuni file
 		for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
 			
+			// Rimuove l'elaborazione dal persistence context
+			dao.detach(elaborazione);
+			
 			if (!Stato.TERMINATO_CON_ERRORE.toString().equals(elaborazione.getFaseJob())) {
 				continue;
 			}

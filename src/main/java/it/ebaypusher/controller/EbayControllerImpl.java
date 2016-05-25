@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -112,7 +111,7 @@ public class EbayControllerImpl implements EbayController {
 
 		check(uploadFileResp);
 
-		logger.info("File trasferito con successo: " + elaborazione.getPathFileInput());
+		logger.info("File trasferito con successo: " + Utility.getFileLabel(elaborazione.getPathFileInput()));
 
 	}
 
@@ -144,43 +143,6 @@ public class EbayControllerImpl implements EbayController {
 	}
 
 	@Override
-	public void updateProgressAndStatus(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
-
-		JobProfile job = getJobProfile(elaborazione.getJobId());
-		
-		// Aggiorna l'avanzamento
-		if ( job.getPercentComplete() != null ) {
-			elaborazione.setJobPercCompl((int) Math.round(job.getPercentComplete()));
-		}
-
-		if (job.getJobStatus() != null) {
-			elaborazione.setJobStatus(job.getJobStatus().toString());
-		}
-
-		if (job.getJobStatus().equals(JobStatus.COMPLETED) && job.getPercentComplete() == 100.0) {
-			logger.info("jobId=" + job.getJobId() + "; " + "jobFileReferenceId=" + job.getFileReferenceId() + " : " + job.getJobType() + " : " + job.getJobStatus());
-			elaborazione.setFaseJob(Stato.TERMINATO_CON_SUCCESSO.toString());
-			elaborazione.setDataElaborazione(new Timestamp(System.currentTimeMillis()));
-			return;
-		}
-
-		if (job.getJobStatus().equals(JobStatus.FAILED) || job.getJobStatus().equals(JobStatus.ABORTED)) {
-			logger.error("JobId=" + job.getJobId() + ": " + "Job Type " + job.getJobType() + " : JobStatus= " + job.getJobStatus());
-			if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3)) {
-				elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
-			}
-			else {
-				elaborazione.setFaseJob(Stato.TERMINATO_CON_ERRORE.toString());
-			}
-			elaborazione.setDataElaborazione(new Timestamp(System.currentTimeMillis()));
-			return;
-		}
-
-		logger.info("JobId=" + job.getJobId() + ": " + "Job Type " + job.getJobType() + " : JobStatus= " + job.getJobStatus());
-
-	}
-
-	@Override
 	public void killAll() throws EbayConnectorException {
 		try {
 			BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
@@ -205,8 +167,6 @@ public class EbayControllerImpl implements EbayController {
         check(getJobStatusResp);
         JobProfile job = retrieveOneJobStatus(getJobStatusResp);
 		
-		boolean done = false;
-		
 		FileTransferActions ftActions = new FileTransferActions(Configurazione.getConfiguration());
 		
 		DownloadFileResponse downloadFileResp = ftActions.downloadFile(
@@ -214,19 +174,21 @@ public class EbayControllerImpl implements EbayController {
 				job.getFileReferenceId());
 
 		if (downloadFileResp == null) {
-			throw new EbayConnectorException("Errore nel download della risposta");
+			return false;
 		}
 		
 		// Verifica la risposta
 		check(downloadFileResp);
 
-		done = true;
 		FileAttachment attachment = downloadFileResp.getFileAttachment();
+		
 		DataHandler dh = attachment.getData();
+
+		InputStream in = null;
+
 		try {
-			InputStream in = dh.getInputStream();
 			
-			System.out.println(dh.getName());
+			in = dh.getInputStream();
 			
 			// Wrap zip file
 			ZipInputStream zipFile = new ZipInputStream(in);
@@ -234,7 +196,8 @@ public class EbayControllerImpl implements EbayController {
 			ZipEntry entry = null;
 			
 			int count = 0;
-			
+
+			// Tenta di aprire il primo file nello zip
 	        while ((entry = zipFile.getNextEntry()) != null) {
 	        	
 	        	count ++;
@@ -251,7 +214,8 @@ public class EbayControllerImpl implements EbayController {
 				bos.close();
 				
 	        }
-	        
+
+	        // Tenta di leggere direttamente il file
 	        if ( count == 0 ) {
 	        	
 	        	FileOutputStream fo = new FileOutputStream(output);
@@ -266,21 +230,24 @@ public class EbayControllerImpl implements EbayController {
 				bos.close();
 				
 	        }
-	        
-	        if ( count == 0 ) {
-	        	
-	        }
-	        
-			// bis.close();
-	        in.close();
+
+			logger.info("File di esito salvato correttamente: " + Utility.getFileLabel(output.getAbsolutePath()));
+
+	        return true;
 
 		} catch (IOException e) {
-			logger.error("\nException caught while trying to save the attachement.");
+			logger.error("Errore mentre si cercava di salvare il file di esito");
+		}
+		finally {
+			if ( in != null ) {
+				try {
+					in.close();
+				} catch (IOException e) {
+				}
+			}
 		}
 		
-		logger.info("File attachment has been saved successfully to " + output.getAbsolutePath());
-
-		return done;
+		return false;
 		
 	}
 

@@ -39,14 +39,6 @@ public interface EbayController {
 	void start(SnzhElaborazioniebay elaborazione) throws EbayConnectorException;
 
 	/**
-	 * Aggiorna lo stato dell'elaborazione in base alla situazione del job
-	 * 
-	 * @param elaborazione
-	 * @throws EbayConnectorException
-	 */
-	void updateProgressAndStatus(SnzhElaborazioniebay elaborazione) throws EbayConnectorException;
-
-	/**
 	 * Salva sul file collegato all'elaborazione la risposta di ebay per questa elaborazione
 	 * 
 	 * @param elaborazione

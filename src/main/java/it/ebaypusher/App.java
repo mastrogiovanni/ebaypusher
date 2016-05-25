@@ -41,14 +41,13 @@ public class App {
 	private static Log logger = LogFactory.getLog(App.class);
 	
 	private static final void usage() {
+		System.out.println("");
 		System.out.println("Usage: java ebaypusher.jar [OPTION]...");
 		System.out.println("");
 		System.out.println("-status dd/mm/yyyy dd/mm/yyyy        Stampa informazioni sui job con data di creazione");
 		System.out.println("                                     compresa fra la prima data inclusa e la seconda esclusa");
 		System.out.println("-kill JobId                          Effettua il kill del job identitificato con quel JobId");
-		
-		// [ batch | status <DateFrom> <DateTo> <JobId> <JobStatus> | abort <JobId> 		
-		
+		System.out.println("");
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -175,7 +174,7 @@ public class App {
 			
 		}
 		catch (Throwable t) {
-			logger.error("Batch interrotto a causa di un errore di runtime: " + t.getMessage());
+			logger.error("Batch interrotto a causa di un errore di runtime", t);
 		}
 		
 	}
@@ -217,18 +216,6 @@ public class App {
 		logger.info(new String(bout.toByteArray()));
 
 	}
-
-//	public static <T> Map<String, Field> getAllFields(Class<T> clazz) {
-//		Map<String, Field> result = new TreeMap<String, Field>();
-//		Class<?> tmpClass = clazz;
-//		while (tmpClass != null) {
-//			for ( Field field : tmpClass.getDeclaredFields() ) {
-//				result.put(field.getName(), field);	    		
-//			}
-//			tmpClass = tmpClass .getSuperclass();
-//		}
-//		return result;
-//	}
 	
 	private static void copyInSystem(String property) {
 		String value = Configurazione.getText(property);
