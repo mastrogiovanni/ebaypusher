@@ -133,6 +133,19 @@ public class Puller implements Runnable {
 						
 						// Stato del job non cambiato
 						if (!Utility.statusChanged(jobProfile, elaborazione)) {
+							
+							if (JobStatus.IN_PROCESS.toString().equals(elaborazione.getJobStatus())) {
+
+								logger.info(
+										String.format(
+												"Elaborazione: %s (%s) %s %s%%",
+												elaborazione.getIdElaborazione(),
+												elaborazione.getFilename(),
+												elaborazione.getJobStatus(),
+												elaborazione.getJobPercCompl()));
+
+							}
+							
 							break;
 						}
 						
@@ -157,7 +170,6 @@ public class Puller implements Runnable {
 								elaborazione.setDataElaborazione(new Timestamp(System.currentTimeMillis()));
 							}
 							else if ( Utility.isJobCompledBad(elaborazione)) {
-								// logger.error("JobId=" + job.getJobId() + ": " + "Job Type " + job.getJobType() + " : JobStatus= " + job.getJobStatus());
 								if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3)) {
 									elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
 								}
