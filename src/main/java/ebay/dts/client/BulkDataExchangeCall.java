@@ -21,6 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import com.ebay.marketplace.services.BulkDataExchangeService;
 import com.ebay.marketplace.services.BulkDataExchangeServicePort;
 
+import it.ebaypusher.controller.EbayConnectorException;
+
 /**
  *
  * @author zhuyang
@@ -72,7 +74,7 @@ public class BulkDataExchangeCall {
     public BulkDataExchangeCall() {
     }
 
-    public BulkDataExchangeServicePort setRequestContext(String callName) {
+    public BulkDataExchangeServicePort setRequestContext(String callName) throws EbayConnectorException {
 
         if (this.serverURL == null && this.serverURL.length() == 0) {
             logger.error("BulkDataExchangeService endpoint URL is not set");
@@ -107,13 +109,15 @@ public class BulkDataExchangeCall {
         //http://developer.ebay.com/DevZone/bulk-data-exchange/CallRef/createUploadJob.html#Request.uploadJobType
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-        // TODO handle custom exceptions here
+        	logger.error(ex.getMessage());
+        	throw new EbayConnectorException(ex.getMessage(), ex);
         }
+
         return port;
+        
     }
 
-    public BulkDataExchangeServicePort setRequestContext() {
+    public BulkDataExchangeServicePort setRequestContext() throws EbayConnectorException {
         BulkDataExchangeServicePort port = null;
         try { // Call Web Service Operation
             BulkDataExchangeService service = new BulkDataExchangeService();
@@ -144,8 +148,8 @@ public class BulkDataExchangeCall {
             requestProperties.put(MessageContext.HTTP_REQUEST_HEADERS, httpHeaders);
             retrieveHttpHeaders(bp,"Response");
         } catch (Exception ex) {
-            ex.printStackTrace();
-        // TODO handle custom exceptions here
+        	logger.error(ex.getMessage());
+        	throw new EbayConnectorException(ex.getMessage(), ex);
         }
         return port;
     }

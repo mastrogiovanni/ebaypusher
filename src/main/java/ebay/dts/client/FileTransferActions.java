@@ -31,6 +31,9 @@ import com.ebay.marketplace.services.FileTransferServicePort;
 import com.ebay.marketplace.services.UploadFileRequest;
 import com.ebay.marketplace.services.UploadFileResponse;
 
+import it.ebaypusher.controller.EbayConnectorException;
+import it.ebaypusher.utility.Utility;
+
 /**
  *
  * @author zhuyang
@@ -45,16 +48,19 @@ public class FileTransferActions {
 		call = new FileTransferCall(prop.getProperty("fileTransferURL"), prop.getProperty("userToken"));
 	}
 
-	public boolean uploadFile(String xmlFile, String jobId, String fileReferenceId) {
+	public void uploadFile(String xmlFile, String jobId, String fileReferenceId) throws EbayConnectorException {
+		
 		String callName = "uploadFile";
-		boolean uploadFileOK = false;
+		
 		try {
 
 			String compressedFileName = compressFileToGzip(xmlFile);
+			
 			if (compressedFileName == null) {
-				logger.error("Failed to compress your XML file into gzip file. Aborted.");
-				return (uploadFileOK = false);
+				logger.error("Failed to compress your XML file into gzip file. Aborted");
+				throw new EbayConnectorException("Failed to compress your XML file into gzip file. Aborted");
 			}
+			
 			FileTransferServicePort port = call.setFTSMessageContext(callName);
 			UploadFileRequest request = new UploadFileRequest();
 			FileAttachment attachment = new FileAttachment();
@@ -64,6 +70,7 @@ public class FileTransferActions {
 			attachment.setSize(fileToUpload.length());
 			String fileFormat = "gzip";
 			request.setFileFormat(fileFormat);
+			
 			/*
 			 * For instance, the Bulk Data Exchange Service uses a job ID as a
 			 * primary identifier, so, if you're using the Bulk Data Exchange
@@ -77,25 +84,26 @@ public class FileTransferActions {
 			if (port != null && request != null) {
 				UploadFileResponse response = port.uploadFile(request);
 				if (response.getAck().equals(AckValue.SUCCESS)) {
-					return (uploadFileOK = true);
+					return;
 				} else {
 					logger.error(response.getErrorMessage().getError().get(0).getMessage());
-					return (uploadFileOK = false);
+					throw new EbayConnectorException(response.getErrorMessage().getError().get(0).getMessage());
 				}
 			}
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return (uploadFileOK = false);
+			throw new EbayConnectorException(e.getMessage());
 		}
-		return uploadFileOK;
+				
 	}
 
-	public UploadFileResponse uploadFile2(String xmlFile, String jobId, String fileReferenceId) {
+	public UploadFileResponse uploadFile2(String xmlFile, String jobId, String fileReferenceId) throws EbayConnectorException {
+		
 		String callName = "uploadFile";
-		boolean uploadFileOK = false;
 		UploadFileResponse response = null;
 		File fileToUpload = null;
+		
 		try {
 
 			String compressedFileName = compressFileToGzip(xmlFile);
@@ -126,9 +134,11 @@ public class FileTransferActions {
 				response = port.uploadFile(request);
 			}
 
+			return response;
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
-			return null;
+			throw new EbayConnectorException(e.getMessage(), e);
 		}
 		finally {
 			if ( fileToUpload != null && fileToUpload.exists()) {
@@ -136,13 +146,14 @@ public class FileTransferActions {
 			}
 		}
 		
-		return response;
 	}
 
-	public boolean downloadFile2(String fileName, String jobId, String fileReferenceId) {
-		boolean downloadOK = false;
+	public void downloadFile2(String fileName, String jobId, String fileReferenceId) throws EbayConnectorException {
+
 		String callName = "downloadFile";
+
 		try {
+			
 			FileTransferServicePort port = call.setFTSMessageContext(callName);
 			com.ebay.marketplace.services.DownloadFileRequest request = new com.ebay.marketplace.services.DownloadFileRequest();
 			request.setFileReferenceId(fileReferenceId);
@@ -150,13 +161,14 @@ public class FileTransferActions {
 			DownloadFileResponse response = port.downloadFile(request);
 			if (response.getAck().equals(AckValue.SUCCESS)) {
 				logger.debug(AckValue.SUCCESS.toString());
-				downloadOK = true;
 			} else {
-				logger.debug(response.getErrorMessage().getError().get(0).getMessage());
-				return (downloadOK = false);
+				logger.error(response.getErrorMessage().getError().get(0).getMessage());
+				throw new EbayConnectorException(response.getErrorMessage().getError().get(0).getMessage());
 			}
+			
 			FileAttachment attachment = response.getFileAttachment();
 			DataHandler dh = attachment.getData();
+			
 			try {
 				InputStream in = dh.getInputStream();
 				BufferedInputStream bis = new BufferedInputStream(new GZIPInputStream(in));
@@ -173,34 +185,27 @@ public class FileTransferActions {
 				logger.info("File attachment has been saved successfully to " + fileName);
 
 			} catch (IOException e) {
-				logger.error("\nException caught while trying to save the attachement.");
-				return (downloadOK = false);
+				logger.error("Exception caught while trying to save the attachement");
+				throw new EbayConnectorException("Exception caught while trying to save the attachement", e);
 			}
+			
 		} catch (Exception e) {
-			e.fillInStackTrace();
-			return (downloadOK = false);
+			throw new EbayConnectorException("Exception caught while trying to save the attachement", e);
 		}
-		return downloadOK;
+		
 	}
 
-	public DownloadFileResponse downloadFile(String jobId, String fileReferenceId) {
+	public DownloadFileResponse downloadFile(String jobId, String fileReferenceId) throws EbayConnectorException {
 		String callName = "downloadFile";
-		DownloadFileResponse response = null;
-		try {
-			FileTransferServicePort port = call.setFTSMessageContext(callName);
-			com.ebay.marketplace.services.DownloadFileRequest request = new com.ebay.marketplace.services.DownloadFileRequest();
-			request.setFileReferenceId(fileReferenceId);
-			request.setTaskReferenceId(jobId);
-			response = port.downloadFile(request);
-
-		} catch (Exception e) {
-			e.getMessage();
-			return null;
-		}
-		return response;
+		FileTransferServicePort port = call.setFTSMessageContext(callName);
+		com.ebay.marketplace.services.DownloadFileRequest request = new com.ebay.marketplace.services.DownloadFileRequest();
+		request.setFileReferenceId(fileReferenceId);
+		request.setTaskReferenceId(jobId);
+		return port.downloadFile(request);
 	}
 
-	private static String compressFileToGzip(String inFilename) {
+	private static String compressFileToGzip(String inFilename) throws EbayConnectorException {
+		
 		// compress the xml file into gz file in the save folder
 		String outFilename = null;
 		String usingPath = inFilename.substring(0, inFilename.lastIndexOf(File.separator) + 1);
@@ -208,21 +213,26 @@ public class FileTransferActions {
 		outFilename = usingPath + fileName + ".gz";
 
 		try {
+			
 			BufferedReader in = new BufferedReader(new FileReader(inFilename));
-			BufferedOutputStream out = new BufferedOutputStream(
-					new GZIPOutputStream(new FileOutputStream(outFilename)));
-			logger.info("Writing gz file...");
+			BufferedOutputStream out = new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(outFilename)));
+			logger.trace("Writing gz file to: " + Utility.getFileLabel(outFilename));
+			
 			int c;
 			while ((c = in.read()) != -1) {
 				out.write(c);
 			}
 			in.close();
 			out.close();
+			
 		} catch (FileNotFoundException e) {
-			logger.error("Cannot find file: " + inFilename);
+			logger.error("Cannot gzip file: " + inFilename);
+			throw new EbayConnectorException("Cannot gzip file: " + inFilename, e);
 		} catch (IOException e) {
-			logger.error("IOException:" + e.toString());
+			logger.error("Cannot gzip file: " + inFilename);
+			throw new EbayConnectorException("Cannot gzip file: " + inFilename, e);
 		}
+		
 		logger.info("The compressed file has been saved to " + outFilename);
 		return outFilename;
 	}

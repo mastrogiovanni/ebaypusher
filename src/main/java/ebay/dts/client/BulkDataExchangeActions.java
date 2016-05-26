@@ -37,6 +37,8 @@ import com.ebay.marketplace.services.StartDownloadJobResponse;
 import com.ebay.marketplace.services.StartUploadJobRequest;
 import com.ebay.marketplace.services.StartUploadJobResponse;
 
+import it.ebaypusher.controller.EbayConnectorException;
+
 /**
  *
  * @author zhuyang
@@ -106,7 +108,7 @@ public class BulkDataExchangeActions {
 
 	}// ENDOF getJobs()
 
-	public GetJobStatusResponse getJobStatus(String jobId) {
+	public GetJobStatusResponse getJobStatus(String jobId) throws EbayConnectorException {
 		String callName = "getJobStatus";
 		BulkDataExchangeServicePort port = call.setRequestContext(callName);
 		com.ebay.marketplace.services.GetJobStatusRequest req = new com.ebay.marketplace.services.GetJobStatusRequest();
@@ -116,7 +118,7 @@ public class BulkDataExchangeActions {
 		return getJobsResp;
 	}// ENDOF getJobStatus()
 
-	public AbortJobResponse abortJobs(String jobId) {
+	public AbortJobResponse abortJobs(String jobId) throws EbayConnectorException {
 		String callName = "abortJob";
 		BulkDataExchangeServicePort port = call.setRequestContext(callName);
 		com.ebay.marketplace.services.AbortJobRequest abortJobsReq = new com.ebay.marketplace.services.AbortJobRequest();
@@ -126,7 +128,7 @@ public class BulkDataExchangeActions {
 
 	}// ENDOF abortJobs()
 
-	public CreateUploadJobResponse createUploadJob(String uploadJobType) {
+	public CreateUploadJobResponse createUploadJob(String uploadJobType) throws EbayConnectorException {
 		String callName = "createUploadJob";
 		BulkDataExchangeServicePort port = call.setRequestContext(callName);
 		CreateUploadJobRequest createUploadJobReq = new CreateUploadJobRequest();
@@ -163,7 +165,7 @@ public class BulkDataExchangeActions {
 
 	}// ENDOF startDownloadJob()
 
-	public StartUploadJobResponse startUploadJob(String jobid) {
+	public StartUploadJobResponse startUploadJob(String jobid) throws EbayConnectorException {
 		String callName = "startUploadJob";
 		BulkDataExchangeServicePort port = call.setRequestContext(callName);
 		com.ebay.marketplace.services.StartUploadJobRequest request = new StartUploadJobRequest();
