@@ -15,7 +15,7 @@ public class DateUtility {
 			SimpleDateFormat sdf = new SimpleDateFormat(format);
 			return sdf.parse(string);
 		} catch (Throwable t) {
-			logger.warn("Error in date format: " + t.getMessage());
+			logger.trace("Error in date format: " + t.getMessage());
 		}
 		return null;
 	}
@@ -34,7 +34,7 @@ public class DateUtility {
 			SimpleDateFormat sdf = new SimpleDateFormat(format);
 			return sdf.format(date);
 		} catch (Throwable t) {
-			logger.warn("Error in date format: " + t.getMessage());
+			logger.trace("Error in date format: " + t.getMessage());
 		}
 		return null;
 	}

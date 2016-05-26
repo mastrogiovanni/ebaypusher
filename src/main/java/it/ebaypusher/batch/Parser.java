@@ -16,6 +16,7 @@ import it.ebaypusher.dao.Dao;
 import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.dao.SnzhEsitiebay;
 import it.ebaypusher.utility.EsitoParser;
+import it.ebaypusher.utility.Utility;
 
 public class Parser implements Runnable {
 
@@ -33,6 +34,8 @@ public class Parser implements Runnable {
 		logger.info("Parser begin to work...");
 		
 		for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
+			
+			dao.detach(elaborazione);
 			
 			JobStatus currentStatus = JobStatus.valueOf(elaborazione.getJobStatus());
 			
@@ -53,16 +56,19 @@ public class Parser implements Runnable {
 				logger.debug("Esito scartato perchè mancante. Elaborazione: " + elaborazione.getIdElaborazione());
 				continue;
 			}
+
+			logger.info("Parsing esito in corso file: " + Utility.getFileLabel(elaborazione.getPathFileEsito()));
 			
 			File fileEsito = new File(elaborazione.getPathFileEsito());
 			if ( ! fileEsito.exists() || !fileEsito.isFile()) {
-				logger.debug("Esito scartato perchè inesistente o non è un file: " + fileEsito);
+				logger.error("Esito scartato perchè inesistente o non è un file: " + fileEsito);
 				continue;
 			}
 
 			try {
 				
 				List<SnzhEsitiebay> esiti = EsitoParser.parse(new FileInputStream(fileEsito));
+								
 				if ( esiti == null || esiti.size() == 0 ) {
 					dao.updateParsed(elaborazione, true);
 					continue;
@@ -74,9 +80,14 @@ public class Parser implements Runnable {
 				
 				dao.insert(esiti);
 				dao.updateParsed(elaborazione, true);
-				
+
 			} catch (FileNotFoundException e) {
 				// Swallow
+			}
+			finally {
+
+				logger.info("Parsing esito terminato file: " + Utility.getFileLabel(elaborazione.getPathFileEsito()));
+
 			}
 
 		}

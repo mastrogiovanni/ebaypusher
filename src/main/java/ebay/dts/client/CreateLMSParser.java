@@ -6,11 +6,14 @@
 package ebay.dts.client;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.jar.Attributes;
 import java.util.logging.Logger;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -55,16 +58,18 @@ public class CreateLMSParser {
 	/**
 	 * Parse a File
 	 * @param file - File
+	 * @throws IOException 
+	 * @throws SAXException 
 	 */
-	public boolean parse(File file) {
+	public void parse(File file) throws SAXException, IOException {
 		logger.info(" CreateLMSParser.parse() ==> " + file.getAbsolutePath().toString());
-		try {
+		// try {
 			saxParser.parse(file, this.handler);
-		} catch (Throwable t) {
-			logger.warning(t.getMessage());
-			return false;
-		}
-		return true;
+		// } catch (Throwable t) {
+		// logger.warning(t.getMessage());
+		// return false;
+		// }
+		// return true;
 	}
 
 	public String getJobType() {

@@ -19,6 +19,7 @@ import it.ebaypusher.controller.EbayController;
 import it.ebaypusher.dao.Dao;
 import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
+import it.ebaypusher.utility.Utility;
 
 /**
  * Questo processo si occupa di sottomettere a ebay per la pubblicazione
@@ -87,10 +88,49 @@ public class Pusher implements Runnable {
 
 			for ( File file : files ) {
 
+				String jobType = null;
+
+				// Cattura il tipo di job
+				try {
+					
+					jobType = connector.getJobTypeFromXML(file);
+					
+				} catch (EbayConnectorException e) {
+					
+					logger.error("Errore nella sottomissione del file: " + Utility.getFileLabel(file) + ";" + e.getMessage());
+
+					SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
+					elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
+					elaborazione.setFilename(file.getName());
+					elaborazione.setPathFileInput(file.getAbsolutePath());
+					elaborazione.setFileReferenceId("<empty>");
+					elaborazione.setJobId("<empty>");
+					elaborazione.setJobType("<empty>");
+					elaborazione.setErroreJob("Errore di parsing:\n" + Utility.getExceptionText(e));
+					elaborazione.setEsitoParsed(true);
+					elaborazione.setNumTentativi(Configurazione.getIntValue("num.max.invii", 3));
+					elaborazione.setJobStatus(JobStatus.FAILED.toString());
+					elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
+					elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
+					dao.insert(elaborazione);
+
+					String errorPath = Utility.getErrorFile(elaborazione).getAbsolutePath();
+					elaborazione.setPathFileInput(errorPath);
+					elaborazione.setPathFileEsito(errorPath);
+					dao.update(elaborazione);
+
+					// Sposta il file negli errori
+					if (!file.renameTo(new File(errorPath)) ) {
+						dao.remove(elaborazione);
+						logger.error("Impossibile spostare il file malformato (forse problemi di permessi?)");
+					}
+
+					continue;
+					
+				}
+
 				try {
 
-					// Cattura il tipo di job
-					String jobType = connector.getJobTypeFromXML(file);
 					logger.info("Il tipo di job del file '" + file.getName() + "' è: " + jobType);
 
 					if ( tooManyJobs(jobType, jobs) ) {
@@ -119,7 +159,7 @@ public class Pusher implements Runnable {
 
 				}
 				catch (Throwable t) {
-					logger.error("Errore nella sottomissione del file: " + file + ";" + t.getMessage());
+					logger.error("Errore nella sottomissione del file: " + Utility.getFileLabel(file) + ";" + t.getMessage());
 				}
 
 			}

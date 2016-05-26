@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Timestamp;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import com.ebay.marketplace.services.JobProfile;
 import com.ebay.marketplace.services.JobStatus;
@@ -13,6 +14,12 @@ import it.ebaypusher.constants.Stato;
 import it.ebaypusher.dao.SnzhElaborazioniebay;
 
 public class Utility {
+
+	public static String getExceptionText(Throwable t) {
+		StringWriter errors = new StringWriter();
+		t.printStackTrace(new PrintWriter(errors));
+		return errors.toString();
+	}
 
 	public static void updateWith(SnzhElaborazioniebay elaborazione, JobProfile jobProfile) {
 		elaborazione.setJobStatus(getStatus(jobProfile));

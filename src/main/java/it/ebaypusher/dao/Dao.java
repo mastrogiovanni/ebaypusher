@@ -40,6 +40,12 @@ public class Dao {
 		commit();
 	}
 
+	public void remove(SnzhElaborazioniebay elaborazione) {
+		begin();
+		manager.remove(elaborazione);
+		commit();
+	}
+
 	public void update(SnzhElaborazioniebay elaborazione) {
 		begin();
 		manager.merge(elaborazione);

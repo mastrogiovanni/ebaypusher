@@ -96,7 +96,7 @@ public class EbayControllerImpl implements EbayController {
 	@Override
 	public void upload(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
 
-		logger.info("Inizio upload file: " + elaborazione.getPathFileInput());
+		logger.info("Inizio upload file: " + Utility.getFileLabel(elaborazione.getPathFileInput()));
 
 		FileTransferActions ftActions = new FileTransferActions(Configurazione.getConfiguration());
 
@@ -279,19 +279,26 @@ public class EbayControllerImpl implements EbayController {
 
 	@Override
 	public String getJobTypeFromXML(File file) throws EbayConnectorException {
+		
 		CreateLMSParser parser = new CreateLMSParser();
-		boolean parseOk = parser.parse(file);
-		if (!parseOk) {
+		
+		try {
+			
+			parser.parse(file);
+
+		} catch (Throwable t) {
 			logger.error("Impossibile effettuare il parsing del file: " + file.getName());
-			throw new EbayConnectorException("Impossibile effettuare il parsing del file: " + file.getName());
+			throw new EbayConnectorException("Impossibile effettuare il parsing del file: " + file.getName(), t);
 		}
-		// extract the JObType String successfully
+
 		String jobType = parser.getJobType();
 		if (jobType == null) {
 			logger.error("Il tipo di job del file non è valido");
 			throw new EbayConnectorException("Il tipo di job del file non è valido");
 		}
+		
 		return jobType;
+
 	}
 
 	private void check(BaseServiceResponse response) throws EbayConnectorException {
