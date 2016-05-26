@@ -5,18 +5,21 @@
 
 package ebay.dts.client;
 
-import com.ebay.marketplace.services.FileTransferService;
-import com.ebay.marketplace.services.FileTransferServicePort;
-import com.sun.xml.ws.developer.JAXWSProperties;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.MessageContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.ebay.marketplace.services.FileTransferService;
+import com.ebay.marketplace.services.FileTransferServicePort;
+import com.sun.xml.ws.developer.JAXWSProperties;
 
 
 /**
@@ -28,7 +31,8 @@ public class FileTransferCall {
     public FileTransferCall() {
     }
 
-    private static Logger logger = Logger.getLogger("FileTransferCall.logger");
+    private static Log logger = LogFactory.getLog(FileTransferCall.class);
+
     public FileTransferCall(String serverURL, String userToken, String callName) {
         this.serverURL = serverURL;
         this.userToken = userToken;
@@ -125,8 +129,10 @@ public class FileTransferCall {
             bp.getBinding().setHandlerChain(handlerList);
             // initialize WS operation arguments here
             Map requestProperties = bp.getRequestContext();
+            
             // set http address
-            System.out.println("serverURL :" + this.serverURL);
+            logger.trace("serverURL :" + this.serverURL);
+            
             if (this.serverURL == null) {
                 throw new Exception(" serverURL can't be null ");
             }

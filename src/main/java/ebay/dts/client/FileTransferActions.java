@@ -15,12 +15,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.ebay.marketplace.services.AckValue;
 import com.ebay.marketplace.services.DownloadFileResponse;
@@ -36,7 +38,8 @@ import com.ebay.marketplace.services.UploadFileResponse;
 public class FileTransferActions {
 
 	FileTransferCall call;
-	private static Logger logger = Logger.getLogger(" FileTransferActions.logger");
+
+    private static Log logger = LogFactory.getLog(FileTransferActions.class);
 
 	public FileTransferActions(Properties prop) {
 		call = new FileTransferCall(prop.getProperty("fileTransferURL"), prop.getProperty("userToken"));
@@ -49,7 +52,7 @@ public class FileTransferActions {
 
 			String compressedFileName = compressFileToGzip(xmlFile);
 			if (compressedFileName == null) {
-				System.out.println("\nFailed to compress your XML file into gzip file. Aborted.");
+				logger.error("Failed to compress your XML file into gzip file. Aborted.");
 				return (uploadFileOK = false);
 			}
 			FileTransferServicePort port = call.setFTSMessageContext(callName);
@@ -76,14 +79,13 @@ public class FileTransferActions {
 				if (response.getAck().equals(AckValue.SUCCESS)) {
 					return (uploadFileOK = true);
 				} else {
-					logger.severe(response.getErrorMessage().getError().get(0).getMessage());
+					logger.error(response.getErrorMessage().getError().get(0).getMessage());
 					return (uploadFileOK = false);
 				}
 			}
 
 		} catch (Exception e) {
-
-			logger.severe(e.getMessage());
+			logger.error(e.getMessage());
 			return (uploadFileOK = false);
 		}
 		return uploadFileOK;
@@ -98,7 +100,7 @@ public class FileTransferActions {
 
 			String compressedFileName = compressFileToGzip(xmlFile);
 			if (compressedFileName == null) {
-				System.out.println("\nFailed to compress your XML file into gzip file. Aborted.");
+				logger.error("Failed to compress your XML file into gzip file. Aborted.");
 				return null;
 			}
 			FileTransferServicePort port = call.setFTSMessageContext(callName);
@@ -125,7 +127,7 @@ public class FileTransferActions {
 			}
 
 		} catch (Exception e) {
-			logger.severe(e.getMessage());
+			logger.error(e.getMessage());
 			return null;
 		}
 		finally {
@@ -147,10 +149,10 @@ public class FileTransferActions {
 			request.setTaskReferenceId(jobId);
 			DownloadFileResponse response = port.downloadFile(request);
 			if (response.getAck().equals(AckValue.SUCCESS)) {
-				System.out.println(response.getAck().SUCCESS);
+				logger.debug(AckValue.SUCCESS.toString());
 				downloadOK = true;
 			} else {
-				System.out.println(response.getErrorMessage().getError().get(0).getMessage());
+				logger.debug(response.getErrorMessage().getError().get(0).getMessage());
 				return (downloadOK = false);
 			}
 			FileAttachment attachment = response.getFileAttachment();
@@ -171,7 +173,7 @@ public class FileTransferActions {
 				logger.info("File attachment has been saved successfully to " + fileName);
 
 			} catch (IOException e) {
-				logger.severe("\nException caught while trying to save the attachement.");
+				logger.error("\nException caught while trying to save the attachement.");
 				return (downloadOK = false);
 			}
 		} catch (Exception e) {
@@ -217,9 +219,9 @@ public class FileTransferActions {
 			in.close();
 			out.close();
 		} catch (FileNotFoundException e) {
-			logger.severe("Cannot find file: " + inFilename);
+			logger.error("Cannot find file: " + inFilename);
 		} catch (IOException e) {
-			logger.severe("IOException:" + e.toString());
+			logger.error("IOException:" + e.toString());
 		}
 		logger.info("The compressed file has been saved to " + outFilename);
 		return outFilename;

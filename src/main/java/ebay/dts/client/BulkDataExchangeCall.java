@@ -179,7 +179,8 @@ public class BulkDataExchangeCall {
     }
 
     public static Map insertHttpsHeadersMap(String name, Map<String, List<String>> maplist) {
-        System.out.println("=== " + name);
+    	StringBuilder builder = new StringBuilder();
+    	builder.append("=== " + name + "\n");
         Map headers = new HashMap<String, Object>();
         Iterator headerIter = null;
         if (maplist != null) {
@@ -187,25 +188,25 @@ public class BulkDataExchangeCall {
             headerIter = maplist.keySet().iterator();
             while (headerIter.hasNext()) {
                 String key = (String) headerIter.next();
-                 System.out.print("Key: " + key);
+                builder.append("Key: " + key);
                 List l = (List<String>) maplist.get(key);
                 Iterator iter = l.iterator();
                 String value = null;
                 while (iter.hasNext()) {
                     value = (String) iter.next();
-                  System.out.println("; Value: " + value);
+                    builder.append("; Value: " + value + "\n");
                 }
                 headers.put(key, value);
             }
-
         }
+        logger.debug(builder.toString());
         return headers;
     }
 
     public static void dumpMap(String name, Map<String, Object> map) {
-        System.out.println("=== " + name);
+    	logger.trace("=== " + name);
         for (Map.Entry e : map.entrySet()) {
-            System.out.println(e.getKey() + " : " + e.getValue());
+        	logger.trace(e.getKey() + " : " + e.getValue());
         }
     }
 }

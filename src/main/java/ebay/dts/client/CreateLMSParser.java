@@ -9,11 +9,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.jar.Attributes;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -23,11 +24,12 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class CreateLMSParser {
 
+    private static Log logger = LogFactory.getLog(CreateLMSParser.class);
+
 	private CreateLMSParser.LMSRequestHandler handler;
 	// private DefaultHandler handler;
+	
 	private SAXParser saxParser;
-	private static Logger logger = Logger.getLogger(" CreateLMSParser.logger");
-
 
 	/**
 	 * Constructor
@@ -118,7 +120,7 @@ public class CreateLMSParser {
 			if (isFound) {
 				return;
 			}
-			System.out.println("startElement() ====>>>> namespaceURI=" + namespaceURI + "   :   localName=" + localName);
+			logger.trace("startElement() ====>>>> namespaceURI=" + namespaceURI + "   :   localName=" + localName);
 			if (TAGS_AND_TYPE.containsKey(localName)) {
 				jobType = TAGS_AND_TYPE.get(localName);
 
@@ -130,7 +132,7 @@ public class CreateLMSParser {
 				String qName)
 						throws SAXException {
 
-			// System.out.println("End Element :" + qName);
+			// logger.debug("End Element :" + qName);
 			if (isFound) {
 				return;
 			}

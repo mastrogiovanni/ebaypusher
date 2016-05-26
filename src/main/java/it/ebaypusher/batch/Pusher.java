@@ -164,9 +164,6 @@ public class Pusher implements Runnable {
 
 			}
 		}
-		else {
-			logger.info("No file in output");
-		}
 
 		// Prova a rinviare alcuni file
 		for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
