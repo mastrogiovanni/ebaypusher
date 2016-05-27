@@ -51,8 +51,6 @@ public class Puller implements Runnable {
 		// Numero massimo di azioni "a vuoto" che il puller può fare
 		int retry = 0;
 		
-		boolean started = false;
-
 		logger.info("Puller begin to work...");
 
 		// Stato del job ebay
