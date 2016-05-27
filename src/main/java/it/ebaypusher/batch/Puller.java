@@ -27,7 +27,10 @@ import it.ebaypusher.utility.Utility;
 public class Puller implements Runnable { 
 
 	private Log logger = LogFactory.getLog(Puller.class);
-
+	
+	private static final String CAMBIO_STATO_MESSAGE = "Elaborazione: %s (%s) %s %s%% -> %s %s%%";
+	private static final String STESSO_STATO_MESSAGE = "Elaborazione: %s (%s) %s %s%%";
+	
 	private EbayController connector;
 
 	private Dao dao;
@@ -47,13 +50,13 @@ public class Puller implements Runnable {
 
 		// Numero massimo di azioni "a vuoto" che il puller può fare
 		int retry = 0;
+		
+		boolean started = false;
 
 		logger.info("Puller begin to work...");
 
 		// Stato del job ebay
 		JobProfile jobProfile = null;
-		
-		String cambioStato = "Elaborazione: %s (%s) %s %s%% -> %s %s%%";
 		
 		while ( !Thread.interrupted() && ! shouldInterrupt && retry <= Configurazione.getIntValue("retry.puller", 15)) {
 
@@ -138,7 +141,7 @@ public class Puller implements Runnable {
 
 								logger.info(
 										String.format(
-												"Elaborazione: %s (%s) %s %s%%",
+												STESSO_STATO_MESSAGE,
 												elaborazione.getIdElaborazione(),
 												elaborazione.getFilename(),
 												elaborazione.getJobStatus(),
@@ -151,7 +154,7 @@ public class Puller implements Runnable {
 						
 						logger.info(
 								String.format(
-										cambioStato,
+										CAMBIO_STATO_MESSAGE,
 										elaborazione.getIdElaborazione(),
 										elaborazione.getFilename(),
 										elaborazione.getJobStatus(),

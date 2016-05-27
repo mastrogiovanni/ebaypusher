@@ -3,6 +3,7 @@ package it.ebaypusher.batch;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import it.ebaypusher.dao.Dao;
 import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.dao.SnzhEsitiebay;
 import it.ebaypusher.utility.EsitoParser;
+import it.ebaypusher.utility.ParserConfiguration;
 import it.ebaypusher.utility.Utility;
 
 public class Parser implements Runnable {
@@ -30,12 +32,22 @@ public class Parser implements Runnable {
 
 	@Override
 	public void run() {
+
+		List<String> enabled = enabled();
 		
-		logger.info("Parser begin to work...");
+		if ( enabled.size() == 0 ) {
+			return;
+		}
 		
+		boolean started = false;
+						
 		for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
 			
 			dao.detach(elaborazione);
+
+			if (!enabledDownload(elaborazione)) {
+				continue;
+			}
 			
 			JobStatus currentStatus = JobStatus.valueOf(elaborazione.getJobStatus());
 			
@@ -51,7 +63,12 @@ public class Parser implements Runnable {
 			if (elaborazione.isEsitoParsed()) {
 				continue;
 			}
-			
+
+			if ( ! started ) {
+				logger.info("Parser begin to work...");
+				started = true;
+			}
+
 			if ( elaborazione.getPathFileEsito() == null ) {
 				logger.debug("Esito scartato perchè mancante. Elaborazione: " + elaborazione.getIdElaborazione());
 				continue;
@@ -92,8 +109,57 @@ public class Parser implements Runnable {
 
 		}
 
-		logger.info("Parser terminated to work");
+		if ( started ) {
+			logger.info("Parser terminated to work");
+		}
+		
+	}
+	
+	private List<String> enabled() {
+		
+		List<String> enabled = new ArrayList<String>();
+		
+		if (ParserConfiguration.instance().isParseAdd()) {
+			enabled.add("AddFixedPriceItem");
+		}
+		
+		if (ParserConfiguration.instance().isParseDel()) {
+			enabled.add("EndFixedPriceItem");
+		}
 
-	}	
+		if (ParserConfiguration.instance().isParseMod()) {
+			enabled.add("ReviseFixedPriceItem");
+		}
+
+		if (ParserConfiguration.instance().isParseRev()) {
+			enabled.add("RelistFixedPriceItem");
+		}
+
+		return enabled;
+		
+	}
+	
+	private boolean enabledDownload(SnzhElaborazioniebay elaborazione) {
+		
+		if ("AddFixedPriceItem".equals(elaborazione.getJobType())) {
+			return ParserConfiguration.instance().isParseAdd();
+		}
+				
+		if ("EndFixedPriceItem".equals(elaborazione.getJobType())) {
+			return ParserConfiguration.instance().isParseDel();
+		}
+
+		if ("ReviseFixedPriceItem".equals(elaborazione.getJobType())) {
+			return ParserConfiguration.instance().isParseMod();
+		}
+
+		if ("RelistFixedPriceItem".equals(elaborazione.getJobType())) {
+			return ParserConfiguration.instance().isParseRev();
+		}
+		
+		logger.error("Tipo elaborazione non ammessa per il parsing: " + elaborazione.getIdElaborazione() + ": " + elaborazione.getJobType());
+		return false;
+
+	}
 
 }

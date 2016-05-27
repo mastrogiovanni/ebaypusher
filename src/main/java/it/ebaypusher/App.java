@@ -154,10 +154,6 @@ public class App {
 	}
 
 	private static void workCycle(Dao dao, EbayController connector) throws FactoryConfigurationError, Exception, EbayConnectorException, ClassNotFoundException {
-
-		if (!connector.test()) {
-			return;
-		}
 		
 		try {
 		
@@ -167,10 +163,8 @@ public class App {
 			Puller puller = new Puller(dao, connector);
 			puller.run();
 	
-			if ( Configurazione.getText("EseguiParsingXML") != null ) {
-				Parser parser = new Parser(dao);
-				parser.run();
-			}
+			Parser parser = new Parser(dao);
+			parser.run();
 			
 		}
 		catch (Throwable t) {
