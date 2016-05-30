@@ -21,6 +21,10 @@ public class TestRest {
 				
 		File file = new File("/home/michele/Documents/Progetti/EBayGrifoni/Ultimo/Esempi di file XML e CSV/20160513192006_ADD_catalogo_ballo_ebay.txt.csv");
 		
+		if (!file.exists()) {
+			System.out.println("Il file non esiste: " + file);
+		}
+		
 		String token = Configurazione.getText("tokenScambioFileCsv");
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

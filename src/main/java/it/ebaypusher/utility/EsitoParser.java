@@ -35,6 +35,7 @@ public class EsitoParser {
 	private static XPathExpression startTime;
 	private static XPathExpression endTime;
 	private static XPathExpression sku;
+	private static XPathExpression correlationId;
 
 	private static XPathExpression segnalazioni;
 	private static XPathExpression longMessage;
@@ -53,6 +54,7 @@ public class EsitoParser {
 			startTime = xPath.compile("StartTime");
 			endTime = xPath.compile("EndTime");
 			sku = xPath.compile("SKU");
+			correlationId = xPath.compile("CorrelationID");
 
 			segnalazioni = xPath.compile("Errors");
 			longMessage = xPath.compile("LongMessage");
@@ -114,6 +116,7 @@ public class EsitoParser {
 
 		esito.setAck((String) ack.evaluate(item, XPathConstants.STRING));
 		esito.setSku((String) sku.evaluate(item, XPathConstants.STRING));
+		esito.setCorrelationId((String) correlationId.evaluate(item, XPathConstants.STRING));
 		esito.setItemId((String) itemID.evaluate(item, XPathConstants.STRING));
 
 		NodeList errors = (NodeList) segnalazioni.evaluate(item, XPathConstants.NODESET);

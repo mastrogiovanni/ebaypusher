@@ -61,6 +61,9 @@ public class SnzhEsitiebay implements Serializable {
 	@Column(name = "SEGNALAZIONI")
 	private String segnalazioni;
 
+	@Column(name = "CORRELATION_ID")
+	private String correlationId;
+
 	public SnzhEsitiebay() {
 	}
 
@@ -148,6 +151,14 @@ public class SnzhEsitiebay implements Serializable {
 	public String toString() {
 		return "SnzhEsitiebay [idEsito=" + idEsito + ", idElaborazione=" + idElaborazione + ", responseType=" + responseType + ", dataEsito=" + dataEsito + ", ack=" + ack + ", sku=" + sku
 				+ ", itemId=" + itemId + ", startTime=" + startTime + ", endTime=" + endTime + ", segnalazioni=" + segnalazioni + "]";
+	}
+
+	public String getCorrelationId() {
+		return correlationId;
+	}
+
+	public void setCorrelationId(String correlationId) {
+		this.correlationId = correlationId;
 	}
 
 

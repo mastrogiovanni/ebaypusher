@@ -31,6 +31,8 @@ import it.ebaypusher.utility.Utility;
  */
 public class Pusher implements Runnable {
 
+	private static final String EMPTY_VALUE = "EMPTY";
+
 	private Log logger = LogFactory.getLog(Pusher.class);
 
 	private EbayController connector;
@@ -95,7 +97,7 @@ public class Pusher implements Runnable {
 					
 					jobType = connector.getJobTypeFromXML(file);
 					
-				} catch (EbayConnectorException e) {
+				} catch (Throwable e) {
 					
 					logger.error("Errore nella sottomissione del file: " + Utility.getFileLabel(file) + ";" + e.getMessage());
 
@@ -103,9 +105,9 @@ public class Pusher implements Runnable {
 					elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
 					elaborazione.setFilename(file.getName());
 					elaborazione.setPathFileInput(file.getAbsolutePath());
-					elaborazione.setFileReferenceId("<empty>");
-					elaborazione.setJobId("<empty>");
-					elaborazione.setJobType("<empty>");
+					elaborazione.setFileReferenceId(EMPTY_VALUE);
+					elaborazione.setJobId(EMPTY_VALUE);
+					elaborazione.setJobType(EMPTY_VALUE);
 					elaborazione.setErroreJob("Errore di parsing:\n" + Utility.getExceptionText(e));
 					elaborazione.setEsitoParsed(true);
 					elaborazione.setNumTentativi(Configurazione.getIntValue("num.max.invii", 3));

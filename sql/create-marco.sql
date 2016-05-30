@@ -39,5 +39,6 @@ create table SNZH_ESITIEBAY
    START_TIME			datetime,
    END_TIME				datetime,
    SEGNALAZIONI			text,
+   CORRELATION_ID		varchar(50),
    primary key (ID_ESITO)
 );
