@@ -157,7 +157,7 @@ public class Parser implements Runnable {
 			return ParserConfiguration.instance().isParseRev();
 		}
 		
-		logger.error("Tipo elaborazione non ammessa per il parsing: " + elaborazione.getIdElaborazione() + ": " + elaborazione.getJobType());
+		logger.debug("Tipo elaborazione non ammessa per il parsing: " + elaborazione.getIdElaborazione() + ": " + elaborazione.getJobType());
 		return false;
 
 	}

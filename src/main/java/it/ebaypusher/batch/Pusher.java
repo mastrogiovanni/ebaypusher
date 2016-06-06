@@ -2,6 +2,9 @@ package it.ebaypusher.batch;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.EnumSet;
@@ -101,31 +104,30 @@ public class Pusher implements Runnable {
 					
 					logger.error("Errore nella sottomissione del file: " + Utility.getFileLabel(file) + ";" + e.getMessage());
 
-					SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
-					elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
-					elaborazione.setFilename(file.getName());
-					elaborazione.setPathFileInput(file.getAbsolutePath());
-					elaborazione.setFileReferenceId(EMPTY_VALUE);
-					elaborazione.setJobId(EMPTY_VALUE);
-					elaborazione.setJobType(EMPTY_VALUE);
-					elaborazione.setErroreJob("Errore di parsing:\n" + Utility.getExceptionText(e));
-					elaborazione.setEsitoParsed(true);
-					elaborazione.setNumTentativi(Configurazione.getIntValue("num.max.invii", 3));
-					elaborazione.setJobStatus(JobStatus.FAILED.toString());
-					elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
-					elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
-					dao.insert(elaborazione);
+					SnzhElaborazioniebay elaborazione = createMalformedElaborazione(file, e);
 
-					String errorPath = Utility.getErrorFile(elaborazione).getAbsolutePath();
-					elaborazione.setPathFileInput(errorPath);
-					elaborazione.setPathFileEsito(errorPath);
-					dao.update(elaborazione);
+					logger.info("Sto per spostare: " + Utility.getFileLabel(file) + " in " + Utility.getFileLabel(elaborazione.getPathFileEsito()));
 
-					logger.info("Sto per spostare: " + file.getAbsolutePath() + " in " + errorPath);
 					// Sposta il file negli errori
-					if (!file.renameTo(new File(errorPath)) ) {
-						dao.remove(elaborazione);
+					if (!move(file, new File(elaborazione.getPathFileEsito()))) {
+
 						logger.error("Impossibile spostare il file malformato (forse problemi di permessi?)");
+						
+						if ( file.delete()) {
+							logger.info("File malformato eliminato con successo dal sistema: " + Utility.getFileLabel(file));
+						}
+						else {
+							logger.error("File malformato impossibile da eliminare dal sistema");
+							logger.error("ATTENZIONE: questo può portare all'aumento di righe di elaborazione malformate.");
+							logger.error("ATTENZIONE: Eliminare velocemente il file di output altrimenti il numero di elaborazioni malformate crescera'");
+						}
+						
+					} 
+					else {
+						
+						dao.insert(elaborazione);
+						logger.info("File malformato registrato sul database: id elaborazione " + elaborazione.getIdElaborazione());
+						
 					}
 
 					continue;
@@ -219,6 +221,68 @@ public class Pusher implements Runnable {
 
 		logger.info("Pusher terminated to work");
 
+	}
+
+	private SnzhElaborazioniebay createMalformedElaborazione(File file, Throwable e) {
+		SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
+		elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
+		elaborazione.setFilename(file.getName());
+		elaborazione.setPathFileInput(file.getAbsolutePath());
+		elaborazione.setFileReferenceId(EMPTY_VALUE);
+		elaborazione.setJobId(EMPTY_VALUE);
+		elaborazione.setJobType(EMPTY_VALUE);
+		elaborazione.setErroreJob("Errore di parsing:\n" + Utility.getExceptionText(e));
+		elaborazione.setEsitoParsed(true);
+		elaborazione.setNumTentativi(Configurazione.getIntValue("num.max.invii", 3));
+		elaborazione.setJobStatus(JobStatus.FAILED.toString());
+		elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
+		elaborazione.setDataInserimento(new Timestamp(System.currentTimeMillis()));
+		String errorPath = Utility.getErrorFile(elaborazione).getAbsolutePath();
+		elaborazione.setPathFileInput(errorPath);
+		elaborazione.setPathFileEsito(errorPath);
+		return elaborazione;
+	}
+	
+	private boolean move(File source, File destination) {
+		
+		// Sposta il file negli errori
+		if (source.renameTo(destination) ) {
+			return true;
+		}
+
+		FileInputStream in = null;
+		FileOutputStream out = null;
+		
+		try {
+			
+			in = new FileInputStream(source);
+			out = new FileOutputStream(destination);
+			Utility.copy(in, out);
+			source.delete();
+			return true;
+			
+		} catch (Throwable e) {
+			// Swallow
+		}
+		finally {
+			if ( in != null ) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					// Swallow
+				}
+			}
+			if ( out != null ) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					// Swallow
+				}
+			}
+		}
+		
+		return false;
+		
 	}
 	
 	private boolean tooManyJobs(String jobType, Map<String, Integer> jobs) {
