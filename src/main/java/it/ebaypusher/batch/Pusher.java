@@ -121,6 +121,7 @@ public class Pusher implements Runnable {
 					elaborazione.setPathFileEsito(errorPath);
 					dao.update(elaborazione);
 
+					logger.info("Sto per spostare: " + file.getAbsolutePath() + " in " + errorPath);
 					// Sposta il file negli errori
 					if (!file.renameTo(new File(errorPath)) ) {
 						dao.remove(elaborazione);

@@ -233,7 +233,7 @@ public class Utility {
 		StringBuilder builder = new StringBuilder();
 		builder.append(elaborazione.getIdElaborazione());
 		builder.append("_");
-		builder.append(elaborazione.getFilename());
+		builder.append(elaborazione.getFilename().replaceAll("\\.", "_"));
 		builder.append("_");
 		builder.append(elaborazione.getJobId());
 		builder.append("_");
