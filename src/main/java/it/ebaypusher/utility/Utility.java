@@ -231,8 +231,10 @@ public class Utility {
 	 */
 	private static String getNewName(SnzhElaborazioniebay elaborazione) {
 		StringBuilder builder = new StringBuilder();
-		builder.append(elaborazione.getIdElaborazione());
-		builder.append("_");
+		if ( elaborazione.getIdElaborazione() != null ) {
+			builder.append(elaborazione.getIdElaborazione());
+			builder.append("_");
+		}
 		builder.append(elaborazione.getFilename().replaceAll("\\.", "_"));
 		builder.append("_");
 		builder.append(elaborazione.getJobId());
