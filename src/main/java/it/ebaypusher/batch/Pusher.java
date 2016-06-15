@@ -25,8 +25,8 @@ import it.ebaypusher.utility.Configurazione;
 import it.ebaypusher.utility.Utility;
 
 /**
- * Questo processo si occupa di sottomettere a ebay per la pubblicazione
- * i file contenuti nella cartella OUTPUT.
+ * Questo processo si occupa di sottomettere a ebay per la pubblicazione i file
+ * contenuti nella cartella OUTPUT.
  *
  * Il processo inserisce un rigo in tabella e sottomette il job a ebay.
  *
@@ -55,7 +55,7 @@ public class Pusher implements Runnable {
 
 		final String extension = getExtension();
 		logger.info("Considero i file con estensione: " + extension + " (case sensitive)");
-		
+
 		File[] files = root.listFiles(new FileFilter() {
 
 			@Override
@@ -65,7 +65,7 @@ public class Pusher implements Runnable {
 					return false;
 				}
 
-				return ( pathname.getName().endsWith(extension));
+				return (pathname.getName().endsWith(extension));
 
 			}
 
@@ -73,34 +73,49 @@ public class Pusher implements Runnable {
 
 		Map<String, Integer> jobs = new TreeMap<String, Integer>() {
 			private static final long serialVersionUID = 1L;
+
 			public Integer get(Object key) {
 				Integer value = super.get(key);
-				if ( value == null ) {
+				if (value == null) {
 					return 0;
 				}
 				return value;
 			};
 		};
-		
-		for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
+
+		for (SnzhElaborazioniebay elaborazione : dao.findAll()) {
 			JobStatus status = JobStatus.valueOf(elaborazione.getJobStatus());
 			if (EnumSet.of(JobStatus.CREATED, JobStatus.IN_PROCESS, JobStatus.SCHEDULED).contains(status)) {
 				jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
 			}
 		}
 
-		if ( files.length > 0 ) {
+		if (files.length > 0) {
 
-			for ( File file : files ) {
+			for (File file : files) {
 
 				String jobType = null;
 
 				// Cattura il tipo di job
 				try {
-					
+
 					jobType = connector.getJobTypeFromXML(file);
-					
+
 				} catch (Throwable e) {
+
+					// Se questo file è già presente nel database come elaborazione malformata,
+					// tenta semplicemente di eliminarlo
+					
+					if (dao.findMalformed(file.getName()).size() > 0) {
+						logger.info("Il file malformato " + file.getName() + " è già stato registrato nel database: tento di rimuoverlo");
+						if ( file.delete() ) {
+							logger.info("File eliminato con successo: " + Utility.getFileLabel(file));
+						}
+						else {
+							logger.info("Ancora problemi con l'eliminazione del file: riprovo più tardi; " + Utility.getFileLabel(file));
+						}
+						continue;
+					}
 					
 					logger.error("Errore nella sottomissione del file: " + Utility.getFileLabel(file) + ";" + e.getMessage());
 
@@ -112,33 +127,31 @@ public class Pusher implements Runnable {
 					if (!move(file, new File(elaborazione.getPathFileEsito()))) {
 
 						logger.error("Impossibile spostare il file malformato (forse problemi di permessi?)");
-						
-						if ( file.delete()) {
+
+						if (file.delete()) {
 							logger.info("File malformato eliminato con successo dal sistema: " + Utility.getFileLabel(file));
-						}
-						else {
+						} else {
 							logger.error("File malformato impossibile da eliminare dal sistema");
 							logger.error("ATTENZIONE: questo può portare all'aumento di righe di elaborazione malformate.");
 							logger.error("ATTENZIONE: Eliminare velocemente il file di output altrimenti il numero di elaborazioni malformate crescera'");
 						}
-						
-					} 
-					else {
-						
+
+					} else {
+
 						dao.insert(elaborazione);
 						logger.info("File malformato registrato sul database: id elaborazione " + elaborazione.getIdElaborazione());
-						
+
 					}
 
 					continue;
-					
+
 				}
 
 				try {
 
 					logger.info("Il tipo di job del file '" + file.getName() + "' è: " + jobType);
 
-					if ( tooManyJobs(jobType, jobs) ) {
+					if (tooManyJobs(jobType, jobs)) {
 						int count = jobs.get(jobType);
 						logger.info("Ci sono già " + count + " job di tipo " + jobType + ": rimando sottomissione");
 						continue;
@@ -162,8 +175,7 @@ public class Pusher implements Runnable {
 					jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
 					logger.info("Job sottomesso con successo: '" + file.getName() + "':" + elaborazione.getIdElaborazione());
 
-				}
-				catch (Throwable t) {
+				} catch (Throwable t) {
 					logger.error("Errore nella sottomissione del file: " + Utility.getFileLabel(file) + ";" + t.getMessage());
 				}
 
@@ -171,29 +183,29 @@ public class Pusher implements Runnable {
 		}
 
 		// Prova a rinviare alcuni file
-		for ( SnzhElaborazioniebay elaborazione : dao.findAll()) {
-			
+		for (SnzhElaborazioniebay elaborazione : dao.findAll()) {
+
 			// Rimuove l'elaborazione dal persistence context
 			dao.detach(elaborazione);
-			
+
 			if (!Stato.TERMINATO_CON_ERRORE.toString().equals(elaborazione.getFaseJob())) {
 				continue;
 			}
-			
+
 			if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3)) {
 				elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
 				dao.update(elaborazione);
 				continue;
 			}
-			
-			if ( tooManyJobs(elaborazione.getJobType(), jobs) ) {
+
+			if (tooManyJobs(elaborazione.getJobType(), jobs)) {
 				int count = jobs.get(elaborazione.getJobType());
 				logger.debug("Ci sono già " + count + " job di tipo " + elaborazione.getJobType() + ": rimando sottomissione");
 				continue;
 			}
 
 			try {
-				
+
 				logger.debug("Retry of elaborazione: " + elaborazione.getIdElaborazione());
 				dao.detach(elaborazione);
 
@@ -210,11 +222,9 @@ public class Pusher implements Runnable {
 
 				jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
 
-			}
-			catch (EbayConnectorException e) {
+			} catch (EbayConnectorException e) {
 				logger.error("Errore nella ri-sottomissione del file: " + e.getMessage());
-			}
-			catch (Throwable t) {
+			} catch (Throwable t) {
 				logger.error("Errore di ri-sottomissione della elaborazione: " + elaborazione.getIdElaborazione(), t);
 			}
 		}
@@ -242,37 +252,36 @@ public class Pusher implements Runnable {
 		elaborazione.setPathFileEsito(errorPath);
 		return elaborazione;
 	}
-	
-	private boolean move(File source, File destination) {
-		
+
+	private boolean move(final File source, final File destination) {
+
 		// Sposta il file negli errori
-		if (source.renameTo(destination) ) {
+		if (source.renameTo(destination)) {
 			return true;
 		}
 
 		FileInputStream in = null;
 		FileOutputStream out = null;
-		
+
 		try {
-			
+
 			in = new FileInputStream(source);
 			out = new FileOutputStream(destination);
 			Utility.copy(in, out);
 			source.delete();
 			return true;
-			
+
 		} catch (Throwable e) {
 			// Swallow
-		}
-		finally {
-			if ( in != null ) {
+		} finally {
+			if (in != null) {
 				try {
 					in.close();
 				} catch (IOException e) {
 					// Swallow
 				}
 			}
-			if ( out != null ) {
+			if (out != null) {
 				try {
 					out.close();
 				} catch (IOException e) {
@@ -280,38 +289,38 @@ public class Pusher implements Runnable {
 				}
 			}
 		}
-		
+
 		return false;
-		
+
 	}
-	
+
 	private boolean tooManyJobs(String jobType, Map<String, Integer> jobs) {
 
 		int count = jobs.get(jobType);
 
-		if ("AddFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.add", Integer.MAX_VALUE) ) {
+		if ("AddFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.add", Integer.MAX_VALUE)) {
 			return true;
 		}
 
-		if ("EndFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.delete", Integer.MAX_VALUE) ) {
+		if ("EndFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.delete", Integer.MAX_VALUE)) {
 			return true;
 		}
 
-		if ("ReviseFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.modify", Integer.MAX_VALUE) ) {
+		if ("ReviseFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.modify", Integer.MAX_VALUE)) {
 			return true;
 		}
 
-		if ("RelistFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.relist", Integer.MAX_VALUE) ) {
+		if ("RelistFixedPriceItem".equals(jobType) && count >= Configurazione.getIntValue("max.relist", Integer.MAX_VALUE)) {
 			return true;
 		}
-		
+
 		return false;
 
 	}
 
 	private String getExtension() {
 		String extension = Configurazione.getText(Configurazione.OUTGOING_FILE_EXTENSION);
-		if ( extension == null ) {
+		if (extension == null) {
 			return "xml";
 		}
 		return extension;

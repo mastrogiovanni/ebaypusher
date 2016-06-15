@@ -28,6 +28,7 @@ import it.ebaypusher.controller.EbayConnectorException;
 import it.ebaypusher.controller.EbayController;
 import it.ebaypusher.controller.EbayControllerImpl;
 import it.ebaypusher.dao.Dao;
+import it.ebaypusher.dao.SnzhElaborazioniebay;
 import it.ebaypusher.utility.Configurazione;
 import it.ebaypusher.utility.DateUtility;
 
@@ -118,7 +119,7 @@ public class App {
 		EntityManager manager = factory.createEntityManager();
 		Dao dao = new Dao(manager);
 		logger.info("Database connected");
-				
+						
 		EbayController connector = new EbayControllerImpl();
 		logger.info("Ebay connection setup");
 		

@@ -72,6 +72,11 @@ public class Dao {
 		manager.merge(elaborazione);
 		commit();
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<SnzhElaborazioniebay> findMalformed(String fileName) {
+		return (List<SnzhElaborazioniebay>) manager.createNamedQuery("SnzhElaborazioniebay.findMalformed").setParameter("name", fileName).getResultList();
+	}
 
 	/**
 	 * Crea una elaborazione per quel fileName.

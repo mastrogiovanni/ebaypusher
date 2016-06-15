@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -20,7 +21,10 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "SNZH_ELABORAZIONIEBAY")
-@NamedQuery(name = "SnzhElaborazioniebay.findAll", query = "SELECT s FROM SnzhElaborazioniebay s")
+@NamedQueries({
+		@NamedQuery(name = "SnzhElaborazioniebay.findAll", query = "SELECT s FROM SnzhElaborazioniebay s"),
+		@NamedQuery(name = "SnzhElaborazioniebay.findMalformed", query = "select s from SnzhElaborazioniebay s WHERE s.jobType = 'EMPTY' and s.jobId = 'EMPTY' and s.fileReferenceId = 'EMPTY' and s.faseJob = 'SUPERATO_NUMERO_MASSIMO_INVII' and s.filename = :name and s.jobStatus = 'FAILED' and s.numTentativi = 3")
+})
 public class SnzhElaborazioniebay implements Serializable {
 
 	private static final long serialVersionUID = 1L;

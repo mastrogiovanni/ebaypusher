@@ -1,9 +1,7 @@
 
 Lanciare il comando con:
 
-> java -jar ebaypusher.jar
-
-
+> java -Djava.security.policy=conf/client.policy -jar ebaypusher.jar
 
 Documentazione Stati
 --------------------
