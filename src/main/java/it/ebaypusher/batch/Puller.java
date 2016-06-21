@@ -171,8 +171,15 @@ public class Puller implements Runnable {
 								elaborazione.setDataElaborazione(new Timestamp(System.currentTimeMillis()));
 							}
 							else if ( Utility.isJobCompledBad(elaborazione)) {
-								if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3)) {
+								
+								// L'esecuzione termina se si è raggiunti il massimo numero di invii oppure se il job è di
+								// tipo Inventory Report
+								//
+								if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3) || 
+										"ActiveInventoryReport".equals(elaborazione.getJobType())) {
+									
 									elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
+									
 								}
 								else {
 									elaborazione.setFaseJob(Stato.TERMINATO_CON_ERRORE.toString());

@@ -7,7 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -53,8 +55,8 @@ public class Pusher implements Runnable {
 		File root = new File(Configurazione.getText(Configurazione.OUTGOING_DIR));
 		logger.info("Scanning della cartella di output: " + root.getAbsolutePath());
 
-		final String extension = getExtension();
-		logger.info("Considero i file con estensione: " + extension + " (case sensitive)");
+		final List<String> extensions = getExtensions();
+		logger.info("Considero i file con estensione: " + extensions + " (case sensitive)");
 
 		File[] files = root.listFiles(new FileFilter() {
 
@@ -65,7 +67,13 @@ public class Pusher implements Runnable {
 					return false;
 				}
 
-				return (pathname.getName().endsWith(extension));
+				for ( String extension : extensions ) {
+					if ( (pathname.getName().endsWith(extension))) {
+						return true;
+					}
+				}
+				
+				return false;
 
 			}
 
@@ -73,7 +81,6 @@ public class Pusher implements Runnable {
 
 		Map<String, Integer> jobs = new TreeMap<String, Integer>() {
 			private static final long serialVersionUID = 1L;
-
 			public Integer get(Object key) {
 				Integer value = super.get(key);
 				if (value == null) {
@@ -93,6 +100,59 @@ public class Pusher implements Runnable {
 		if (files.length > 0) {
 
 			for (File file : files) {
+				
+				if ( (file.getName().endsWith(getInventoryExtension()))) {
+
+					logger.info("Trovata Inventory Report: " + Utility.getFileLabel(file));
+					
+					try {
+
+						SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
+						elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
+						elaborazione.setFilename(file.getName());
+						elaborazione.setPathFileInput(file.getAbsolutePath());
+						elaborazione.setFileReferenceId("EMPTY");
+						elaborazione.setJobId("EMPTY");
+						elaborazione.setNumTentativi(0);
+						File sentFile = Utility.getSentFile(elaborazione);
+						elaborazione.setPathFileInput(sentFile.getAbsolutePath());
+						elaborazione.setJobStatus(JobStatus.SCHEDULED.toString());
+						elaborazione.setFaseJob(Stato.INVIATO_EBAY.toString());
+						
+						if (!move(file, sentFile)) {
+							logger.error("Impossibile spostare il file: retry later");
+							continue;
+						}
+
+						// Avvia richiesta di inventory
+						connector.startActiveInventoryReport(elaborazione);
+						
+						logger.info("Inventory Report job avviato con successo: " + elaborazione.getJobId());
+						dao.insert(elaborazione);
+	
+						jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
+						logger.info("Job sottomesso con successo: '" + file.getName() + "':" + elaborazione.getIdElaborazione());
+	
+					}
+					catch (Throwable t) {
+						logger.error("Errore nella sottomissione della Inventory Request: " + Utility.getFileLabel(file) + ";" + t.getMessage());
+					}
+					
+					continue;
+				}
+				
+				// Se questo file è già presente nel database come elaborazione malformata,
+				// tenta semplicemente di eliminarlo
+				if (dao.findMalformed(file.getName()).size() > 0) {
+					logger.info("Il file malformato " + file.getName() + " è già stato registrato nel database: tento di rimuoverlo");
+					if ( file.delete() ) {
+						logger.info("File eliminato con successo: " + Utility.getFileLabel(file));
+					}
+					else {
+						logger.info("Ancora problemi con l'eliminazione del file: riprovo più tardi; " + Utility.getFileLabel(file));
+					}
+					continue;
+				}
 
 				String jobType = null;
 
@@ -102,20 +162,6 @@ public class Pusher implements Runnable {
 					jobType = connector.getJobTypeFromXML(file);
 
 				} catch (Throwable e) {
-
-					// Se questo file è già presente nel database come elaborazione malformata,
-					// tenta semplicemente di eliminarlo
-					
-					if (dao.findMalformed(file.getName()).size() > 0) {
-						logger.info("Il file malformato " + file.getName() + " è già stato registrato nel database: tento di rimuoverlo");
-						if ( file.delete() ) {
-							logger.info("File eliminato con successo: " + Utility.getFileLabel(file));
-						}
-						else {
-							logger.info("Ancora problemi con l'eliminazione del file: riprovo più tardi; " + Utility.getFileLabel(file));
-						}
-						continue;
-					}
 					
 					logger.error("Errore nella sottomissione del file: " + Utility.getFileLabel(file) + ";" + e.getMessage());
 
@@ -318,12 +364,24 @@ public class Pusher implements Runnable {
 
 	}
 
-	private String getExtension() {
-		String extension = Configurazione.getText(Configurazione.OUTGOING_FILE_EXTENSION);
-		if (extension == null) {
-			return "xml";
+	private List<String> getExtensions() {
+		return Arrays.asList(getXmlExtension(), getInventoryExtension());
+	}
+	
+	private String getXmlExtension() {
+		String xml = Configurazione.getText(Configurazione.OUTGOING_FILE_EXTENSION);
+		if (xml == null) {
+			xml = "xml";
 		}
-		return extension;
+		return xml;
+	}
+	
+	private String getInventoryExtension() {
+		String inventory = Configurazione.getText(Configurazione.INVENTORY_FILE_EXTENSION);
+		if (inventory == null) {
+			inventory = "inventory";
+		}
+		return inventory;
 	}
 
 }

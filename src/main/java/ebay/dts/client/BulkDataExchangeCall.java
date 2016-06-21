@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.ebay.marketplace.services.BulkDataExchangeService;
 import com.ebay.marketplace.services.BulkDataExchangeServicePort;
+import com.ebay.marketplace.services.GetJobsRequest;
 
 import it.ebaypusher.controller.EbayConnectorException;
 

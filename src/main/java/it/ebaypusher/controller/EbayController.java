@@ -38,6 +38,8 @@ public interface EbayController {
 	 */
 	void start(SnzhElaborazioniebay elaborazione) throws EbayConnectorException;
 
+	void startActiveInventoryReport(SnzhElaborazioniebay elaborazione) throws Exception;
+
 	/**
 	 * Salva sul file collegato all'elaborazione la risposta di ebay per questa elaborazione
 	 * 

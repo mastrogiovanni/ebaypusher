@@ -26,6 +26,7 @@ public class Configurazione {
 	public static final String REPORT_DIR = "report.dir";
 
 	public static final String OUTGOING_FILE_EXTENSION = "outgoing.file.extension";
+	public static final String INVENTORY_FILE_EXTENSION = "inventory.file.extension";
 
 	public static final String NUM_MAX_INVII = "num.max.invii";
 

@@ -109,7 +109,7 @@ public class App {
 
 			}
 		}
-
+		
 		Properties props = Configurazione.getConfiguration();
 		props.setProperty("eclipselink.ddl-generation", "create-tables");
 		props.setProperty("eclipselink.ddl-generation.output-mode", "database");
@@ -122,7 +122,7 @@ public class App {
 						
 		EbayController connector = new EbayControllerImpl();
 		logger.info("Ebay connection setup");
-		
+
 		if ( Configurazione.getConfiguration().getProperty("killall") != null ) {
 			logger.info("Kill all suspended Ebay processes");
 			connector.killAll();

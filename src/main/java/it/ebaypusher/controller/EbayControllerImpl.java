@@ -28,6 +28,7 @@ import com.ebay.marketplace.services.GetJobStatusResponse;
 import com.ebay.marketplace.services.GetJobsResponse;
 import com.ebay.marketplace.services.JobProfile;
 import com.ebay.marketplace.services.JobStatus;
+import com.ebay.marketplace.services.StartDownloadJobResponse;
 import com.ebay.marketplace.services.StartUploadJobResponse;
 import com.ebay.marketplace.services.UploadFileResponse;
 
@@ -114,20 +115,24 @@ public class EbayControllerImpl implements EbayController {
 		logger.info("File trasferito con successo: " + Utility.getFileLabel(elaborazione.getPathFileInput()));
 
 	}
+	
+	@Override
+	public void startActiveInventoryReport(SnzhElaborazioniebay elaborazione) throws Exception {
+		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
+		StartDownloadJobResponse response = bdeActions.startDownloadJob("ActiveInventoryReport", null);
+		check(response);
+		elaborazione.setJobType("ActiveInventoryReport");
+		elaborazione.setJobId(response.getJobId());
+		logger.info("Inventory Report richiesto con successo: " + elaborazione.getJobId());
+	}
 
 	@Override
 	public void start(SnzhElaborazioniebay elaborazione) throws EbayConnectorException {
-
 		logger.info("Richiedo avvio batch elaborazione ebay: " + elaborazione.getJobId());
-
 		BulkDataExchangeActions bdeActions = new BulkDataExchangeActions(Configurazione.getConfiguration());
-
 		StartUploadJobResponse startUploadJobResp = bdeActions.startUploadJob(elaborazione.getJobId());
-
 		check(startUploadJobResp);
-
 		logger.info("Batch elaborazione ebay avviato con successo: " + elaborazione.getJobId());
-
 	}
 	
 	@Override
