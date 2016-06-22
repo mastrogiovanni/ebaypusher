@@ -36,7 +36,7 @@ import it.ebaypusher.utility.Utility;
  */
 public class Pusher implements Runnable {
 
-	private static final String EMPTY_VALUE = "EMPTY";
+	public static final String EMPTY_VALUE = "EMPTY";
 
 	private Log logger = LogFactory.getLog(Pusher.class);
 

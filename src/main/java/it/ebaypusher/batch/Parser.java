@@ -156,7 +156,17 @@ public class Parser implements Runnable {
 		if ("RelistFixedPriceItem".equals(elaborazione.getJobType())) {
 			return ParserConfiguration.instance().isParseRev();
 		}
-		
+
+		// Non produce output da parsare
+		if ("ActiveInventoryReport".equals(elaborazione.getJobType())) {
+			return false;
+		}
+
+		// Non produce output da parsare
+		if (Pusher.EMPTY_VALUE.equals(elaborazione.getJobType())) {
+			return false;
+		}
+
 		logger.debug("Tipo elaborazione non ammessa per il parsing: " + elaborazione.getIdElaborazione() + ": " + elaborazione.getJobType());
 		return false;
 
