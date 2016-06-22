@@ -49,6 +49,10 @@ public class App {
 		System.out.println("                                     compresa fra la prima data inclusa e la seconda esclusa");
 		System.out.println("-kill JobId                          Effettua il kill del job identitificato con quel JobId");
 		System.out.println("");
+		System.out.println("Il sistema effettua l'upload bulk di file XML secondo le specifiche di Ebay per aggiungere");
+		System.out.println("modificare o rimuovere insiemi di inserzioni.");
+		System.out.println("E'possibile anche richiedere l'Inventory Report di tutte le inserzioni attive.");
+		System.out.println("E'sufficiente includere nella cartella di output un file con estensione 'inventory'");
 	}
 	
 	public static void main(String[] args) throws Exception {

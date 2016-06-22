@@ -22,8 +22,15 @@ public class Utility {
 	}
 
 	public static void updateWith(SnzhElaborazioniebay elaborazione, JobProfile jobProfile) {
+		
+		// Update reference file for active inventory report processes
+		if ( "ActiveInventoryReport".equals(elaborazione.getJobType()) && jobProfile.getFileReferenceId() != null ) {
+			elaborazione.setFileReferenceId(jobProfile.getFileReferenceId());
+		}
+		
 		elaborazione.setJobStatus(getStatus(jobProfile));
 		elaborazione.setJobPercCompl(getPercent(jobProfile));
+		
 	}
 	
 	/**

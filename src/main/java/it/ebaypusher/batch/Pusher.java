@@ -103,42 +103,9 @@ public class Pusher implements Runnable {
 				
 				if ( (file.getName().endsWith(getInventoryExtension()))) {
 
-					logger.info("Trovata Inventory Report: " + Utility.getFileLabel(file));
-					
-					try {
-
-						SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
-						elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
-						elaborazione.setFilename(file.getName());
-						elaborazione.setPathFileInput(file.getAbsolutePath());
-						elaborazione.setFileReferenceId("EMPTY");
-						elaborazione.setJobId("EMPTY");
-						elaborazione.setNumTentativi(0);
-						File sentFile = Utility.getSentFile(elaborazione);
-						elaborazione.setPathFileInput(sentFile.getAbsolutePath());
-						elaborazione.setJobStatus(JobStatus.SCHEDULED.toString());
-						elaborazione.setFaseJob(Stato.INVIATO_EBAY.toString());
-						
-						if (!move(file, sentFile)) {
-							logger.error("Impossibile spostare il file: retry later");
-							continue;
-						}
-
-						// Avvia richiesta di inventory
-						connector.startActiveInventoryReport(elaborazione);
-						
-						logger.info("Inventory Report job avviato con successo: " + elaborazione.getJobId());
-						dao.insert(elaborazione);
-	
-						jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
-						logger.info("Job sottomesso con successo: '" + file.getName() + "':" + elaborazione.getIdElaborazione());
-	
-					}
-					catch (Throwable t) {
-						logger.error("Errore nella sottomissione della Inventory Request: " + Utility.getFileLabel(file) + ";" + t.getMessage());
-					}
-					
+					manageInventoryFile(file, jobs);
 					continue;
+					
 				}
 				
 				// Se questo file è già presente nel database come elaborazione malformata,
@@ -277,6 +244,54 @@ public class Pusher implements Runnable {
 
 		logger.info("Pusher terminated to work");
 
+	}
+
+	private void manageInventoryFile(File file, Map<String, Integer> jobs) {
+		
+		logger.info("Trovata richiesta per 'Inventory Report': " + Utility.getFileLabel(file));
+		
+		try {
+
+			SnzhElaborazioniebay elaborazione = new SnzhElaborazioniebay();
+			elaborazione.setDataInserimento(new Date(System.currentTimeMillis()));
+			elaborazione.setFilename(file.getName());
+			elaborazione.setNumTentativi(0);
+			elaborazione.setJobStatus(JobStatus.SCHEDULED.toString());
+			elaborazione.setFaseJob(Stato.INVIATO_EBAY.toString());
+			elaborazione.setPathFileInput(file.getAbsolutePath());
+			
+			// Temporary setting of referenced file
+			elaborazione.setFileReferenceId(EMPTY_VALUE);
+
+			// Avvia richiesta di inventory
+			// set jobType and jobId
+			connector.startActiveInventoryReport(elaborazione);
+
+			logger.info("Inventory Report job avviato con successo: " + elaborazione.getJobId());
+
+			// Save elaborazione
+			dao.insert(elaborazione);
+
+			// Sposta il file in "sent" e aggiorna l'elaborazione
+			File sentFile = Utility.getSentFile(elaborazione);
+			if (!move(file, sentFile)) {
+				logger.error("Impossibile spostare il file '" + file.getName() + "': retry later");
+				
+				// Elimina elaborazione dal sistema
+				dao.remove(elaborazione);
+				return;
+			}
+			elaborazione.setPathFileInput(sentFile.getAbsolutePath());
+			dao.update(elaborazione);
+
+			jobs.put(elaborazione.getJobType(), jobs.get(elaborazione.getJobType()) + 1);
+			logger.info("Job sottomesso con successo: '" + file.getName() + "':" + elaborazione.getIdElaborazione());
+
+		}
+		catch (Throwable t) {
+			logger.error("Errore nella sottomissione della Inventory Request: " + Utility.getFileLabel(file) + ";" + t.getMessage());
+		}
+		
 	}
 
 	private SnzhElaborazioniebay createMalformedElaborazione(File file, Throwable e) {
