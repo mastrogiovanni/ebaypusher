@@ -1,7 +1,10 @@
 
+Lancio
+------
+
 Lanciare il comando con:
 
-> java -Djava.security.policy=conf/client.policy -jar ebaypusher.jar
+> java -jar ebaypusher.jar
 
 Documentazione Stati
 --------------------
@@ -15,19 +18,19 @@ CREATED
 * [Puller]
 
 <upload file>
-CREATED					INVIATO_EBAY
+CREATED				INVIATO_EBAY
 
 <start>
-SCHEDULED				INVIATO_EBAY
+SCHEDULED			INVIATO_EBAY
 
 <update_status>
 SCHEDULED
-IN_PROCESS				INVIATO_EBAY
+IN_PROCESS			INVIATO_EBAY
 
 <terminato..>
-COMPLETED				TERMINATO_CON_SUCCESSO
-ABORTED					TERMINATO_CON_ERRORE
-FAILED					TERMINATO_CON_ERRORE
+COMPLETED			TERMINATO_CON_SUCCESSO
+ABORTED				TERMINATO_CON_ERRORE
+FAILED				TERMINATO_CON_ERRORE
 						...
-						SUPERATO_NUMERO_MASSIMO_INVII
+				SUPERATO_NUMERO_MASSIMO_INVII
 

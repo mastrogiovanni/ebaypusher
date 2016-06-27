@@ -1,6 +1,0 @@
-
-- Elimina i system.out
-
-- Invio di CSV
-
-http://pics.ebay.com/aw/pics/pdf/us/file_exchange/File_Exchange_Advanced_Instructions.pdf
