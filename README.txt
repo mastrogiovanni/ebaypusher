@@ -1,6 +1,14 @@
 INTRODUZIONE
 ------------
 
+Ebaypusher è un batch che si occupa di effettuare l'upload di files su ebay utilizzando le Merchant API.
+Il sistema si poggia su un database mysql, utilizza tre tabelle per accodare file da inviare e annotare
+avanzamento e risposte.
+I files da inviare vengono gestiti su filesystem utilizzano 4 cartelle: output, report, error, input
+
+SVILUPPO
+--------
+
 Il progetto è stato sviluppato con Java 1.6, Maven 3 (gestione degli artefatti), 
 Git (come sistema di versionamento).
 
