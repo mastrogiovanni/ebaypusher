@@ -235,6 +235,16 @@ public class Puller implements Runnable {
 					
 					// Aggiorna l'elaborazione salvando l'ultimo messaggio errore
 					elaborazione = dao.findById(elaborazione.getIdElaborazione());
+					
+					// Il batch non è stato in grado di aggiornare il job
+					// incrementa il numero di tentativi e in caso raggiunto
+					// il limite massimo, termina con errore l'elaborazione
+					elaborazione.setNumTentativi(elaborazione.getNumTentativi() + 1);
+					if (elaborazione.getNumTentativi() >= Configurazione.getIntValue(Configurazione.NUM_MAX_INVII, 3)) {
+						elaborazione.setFaseJob(Stato.SUPERATO_NUMERO_MASSIMO_INVII.toString());
+						elaborazione.setDataElaborazione(new Timestamp(System.currentTimeMillis()));
+					}
+					
 					elaborazione.setErroreJob(e.getMessage());
 					dao.update(elaborazione);
 					

@@ -126,7 +126,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Class-Path>lib/BulkDataExchangeService-1.0.jar</Class-Path>
+							<Class-Path>lib/FileTransferService_BulkDataExchangeService-1.0.jar</Class-Path>
 						</manifestEntries>
 						<index>false</index>
 						<manifest>
